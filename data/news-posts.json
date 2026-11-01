@@ -1,0 +1,16 @@
+[
+  {
+    "title": "ICT in Education",
+    "slug": "ict",
+    "excerpt": "Beyond the official ChatGPT extension, there are several powerful AI coding assistants available for Visual Studio Code. Depending on your needs—whether you prioritize deep codebase understanding, open-source privacy, or specialized cloud workflows—you can install these top choices directly from the marketplace:\n\n1. The Industry Standards\n\n• GitHub Copilot: The most widely adopted inline assistant. It is embedded naturally into VS Code, offering instant multi-language autocompletions, boilerplat",
+    "content": "Beyond the official ChatGPT extension, there are several powerful AI coding assistants available for Visual Studio Code. Depending on your needs—whether you prioritize deep codebase understanding, open-source privacy, or specialized cloud workflows—you can install these top choices directly from the marketplace:",
+    "status": "publish",
+    "contentType": "project",
+    "category": "ICT Infrastructure",
+    "location": "Wau South Sudan",
+    "imageUrl": "/uploads/3268ef25-ba0d-4b5f-9da2-cd2f628e1266.png",
+    "id": 1,
+    "date": "2026-10-31T02:01:08.974Z",
+    "modified": "2026-10-31T02:01:08.974Z"
+  }
+]

@@ -1,0 +1,120 @@
+{
+  "company": {
+    "name": "Jama Tech LTD",
+    "location": "Rock City, Juba, South Sudan",
+    "email": "jamatech.ltd@gmail.com",
+    "phone": "+211 921 769 369",
+    "description": "A South Sudanese social enterprise working across environmental sustainability, digital transformation and essential supply chain logistics.",
+    "vision": "To be South Sudan’s leading social enterprise in driving sustainable community development, empowering organizations through cutting-edge technology, eco-friendly resource management, and dependable supply chain logistics.",
+    "mission": "To drive sustainable growth and resilience across South Sudan by delivering reliable supply chain solutions, eco-friendly recycling innovations, and robust digital infrastructure—empowering communities, businesses, and development partners to thrive in a connected world."
+  },
+  "homepage": {
+    "headline": "Innovating for a sustainable, connected & resilient future.",
+    "introduction": "A South Sudanese social enterprise turning local capacity into lasting resilience.",
+    "sections": [
+      {
+        "id": "sustainability-projects",
+        "eyebrow": "Sustainability in action",
+        "title": "Practical projects for a more circular future.",
+        "body": "Our plastic recycling work turns waste into a resource and supports more responsible use of materials. Through locally relevant projects and partnerships, we aim to contribute to cleaner communities and a more resilient South Sudan.",
+        "imageUrl": "photo-1532996122724-e3c354a0b15b",
+        "enabled": true
+      },
+      {
+        "id": "community-impact",
+        "eyebrow": "Community impact",
+        "title": "Local capacity. Lasting resilience.",
+        "body": "As a South Sudanese social enterprise based in Juba, Jama Tech works across supply logistics, recycling, and digital services to support organizations and communities. We focus on dependable delivery and practical solutions shaped around local needs.",
+        "imageUrl": "photo-1593113630400-ea4288922497",
+        "enabled": true
+      }
+    ]
+  },
+  "services": [
+    {
+      "slug": "food-and-nfis",
+      "number": "01",
+      "short": "Supply & logistics",
+      "title": "Food & Non-Food Items Supply",
+      "description": "Dependable procurement and distribution. Essential supplies, delivered with care.",
+      "introduction": "End-to-end procurement and supply chain management for humanitarian response, community development and institutional operations.",
+      "image": "photo-1586528116311-ad8dd3c8310d",
+      "alt": "An organised warehouse with storage racks and distribution equipment",
+      "capabilities": [
+        "Food commodity procurement",
+        "Grains, pulses and fortified foods",
+        "Dry food rations and quality testing",
+        "Hygiene, shelter and dignity kits",
+        "WASH supplies and household items",
+        "Warehousing, logistics and distribution"
+      ],
+      "audience": "Humanitarian organisations, procurement teams, government institutions and private enterprises."
+    },
+    {
+      "slug": "plastic-recycling",
+      "number": "02",
+      "short": "Recycling & circular economy",
+      "title": "Plastic Waste Recycling",
+      "description": "Rethinking waste as a resource. Closing the loop for a cleaner environment.",
+      "introduction": "Plastic waste processing and resource recovery that support a circular economy and help protect local ecosystems.",
+      "image": "photo-1532996122724-e3c354a0b15b",
+      "alt": "Colour-coded containers used for separating recyclable materials",
+      "capabilities": [
+        "Plastic waste processing",
+        "Bottle crushing",
+        "Mechanical processing and compaction",
+        "Resource recovery",
+        "Recyclable raw materials",
+        "Circular economy and environmental conservation"
+      ],
+      "audience": "Environmental organisations, institutions, local businesses and community partners."
+    },
+    {
+      "slug": "ict-consultancy",
+      "number": "03",
+      "short": "ICT & digital solutions",
+      "title": "ICT Consultancy & Digital Solutions",
+      "description": "Practical technology. Smarter workflows. Stronger organisational capability.",
+      "introduction": "Strategic advice, technical support and capacity building to help organisations modernise their operations and digital workflows.",
+      "image": "photo-1497366811353-6870744d04b2",
+      "alt": "A contemporary workspace with computers and shared working areas",
+      "capabilities": [
+        "ICT advisory and IT infrastructure",
+        "Procurement systems and workflow digitalisation",
+        "Data security and system administration",
+        "Technical training",
+        "Digital media production and drone operations",
+        "Data collection"
+      ],
+      "audience": "NGOs, educational institutions, government departments and growing businesses."
+    },
+    {
+      "slug": "internet-and-web-development",
+      "number": "04",
+      "short": "Connectivity & web",
+      "title": "Internet Infrastructure & Web Development",
+      "description": "From reliable networks to thoughtful websites. Connecting you to what’s next.",
+      "introduction": "Physical networks and purposeful digital experiences that help organisations work, communicate and grow in a connected world.",
+      "image": "photo-1558494949-ef010cbdcc31",
+      "alt": "Network infrastructure inside a server room",
+      "capabilities": [
+        "LAN/WAN installation",
+        "Satellite connectivity",
+        "Internet infrastructure and network maintenance",
+        "Website development",
+        "Web portals and digital assets",
+        "Brand asset creation"
+      ],
+      "audience": "Offices, project sites, institutions and businesses building their digital presence."
+    }
+  ],
+  "teamMembers": [
+    {
+      "id": "5a7002a6-c4fd-4104-8be5-cbef63e04a6a",
+      "name": "Rufas",
+      "role": "Senior We Developer",
+      "biography": "he is the best",
+      "imageUrl": "/uploads/2290d1dc-de2d-4fee-9329-99d77a8b0ff2.jpg"
+    }
+  ]
+}
