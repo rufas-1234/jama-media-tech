@@ -105,28 +105,3 @@ export async function deleteLocalPost(id: number) {
   await writeStore(remaining);
   return true;
 }
-
-export function localPostToContentItem(post: ManagedPost) {
-  const paragraphHtml = (value: string) => value
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-    .map((paragraph) => `<p>${paragraph.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</p>`)
-    .join('');
-
-  return {
-    id: post.id,
-    slug: post.slug,
-    date: post.date,
-    status: post.status,
-    title: { rendered: post.title },
-    content: { rendered: paragraphHtml(post.content) },
-    excerpt: { rendered: paragraphHtml(post.excerpt) },
-    meta: {
-      jama_project_category: post.category,
-      jama_project_location: post.location,
-      jama_cover_image: post.imageUrl,
-    },
-    ...(post.imageUrl ? { _embedded: { 'wp:featuredmedia': [{ source_url: post.imageUrl, alt_text: post.title }] } } : {}),
-  };
-}

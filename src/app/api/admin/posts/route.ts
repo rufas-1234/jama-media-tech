@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 const noStore = { 'Cache-Control': 'no-store' };
 
 async function revalidateNews() {
-  revalidateTag('wordpress', { expire: 0 });
+  revalidateTag('cms-content', { expire: 0 });
   revalidatePath('/', 'page');
   revalidatePath('/news', 'page');
   revalidatePath('/news/[slug]', 'page');

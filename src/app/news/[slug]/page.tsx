@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getArticleBySlug, plainText } from '@/lib/wordpress';
+import { getArticleBySlug } from '@/lib/cms-content';
 import { fallbackArticles } from '@/lib/news-content';
 
 export const dynamic = 'force-dynamic';
@@ -13,8 +13,8 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     notFound();
   }
 
-  const title = cmsArticle ? plainText(cmsArticle.title.rendered) : fallbackArticle!.title;
-  const content = cmsArticle ? plainText(cmsArticle.content.rendered) : fallbackArticle!.content;
+  const title = cmsArticle ? cmsArticle.title : fallbackArticle!.title;
+  const content = cmsArticle ? cmsArticle.content : fallbackArticle!.content;
 
   return (
     <main className="page-hero min-h-screen py-20 lg:py-28">

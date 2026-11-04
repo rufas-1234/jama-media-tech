@@ -1,87 +1,43 @@
-# News, Insights, and Projects Admin
+# Content, Database, and Media Setup
 
 ## Local Development
 
-Start the frontend with `npm run dev`, then open `http://127.0.0.1:3000/admin/login`.
+Start the app with `npm run dev`, then open `http://127.0.0.1:3000/admin/login`.
 
-The local development credentials are stored in the ignored `.env.local` file. The editor saves local News and Project entries to `data/news-posts.json`, and site settings to `data/site-content.json`; this is for preview and development only. Do not rely on these local files or `public/uploads` for production or serverless deployments.
+Without TiDB credentials, development uses `data/news-posts.json` and `data/site-content.json`. Local uploads go to `public/uploads`. These files are a development fallback only; Vercel's filesystem is not persistent.
 
-## Production Publishing
+## TiDB Cloud
 
-Configure these values in the deployment platform's secret settings, not in tracked files:
+1. Create a TiDB Cloud cluster and database. Create an application user with access limited to this database.
+2. Select the database in the TiDB SQL editor and run [`db/schema.sql`](./db/schema.sql).
+3. Configure the following server-only environment variables:
+   - `TIDB_HOST`: cluster endpoint hostname.
+   - `TIDB_PORT`: cluster port, normally `4000`.
+   - `TIDB_USER`: application username.
+   - `TIDB_PASSWORD`: application password.
+   - `TIDB_DATABASE`: database name.
 
-- `ADMIN_USERNAME`: editorial account name.
-- `ADMIN_PASSWORD`: unique, strong editorial password.
-- `ADMIN_SESSION_SECRET`: random secret of at least 32 characters.
-- `WORDPRESS_API_URL`: WordPress REST base URL, including `/wp-json`.
-- `WORDPRESS_API_USER`: dedicated WordPress editor account.
-- `WORDPRESS_API_PASSWORD`: an application password for that account.
+The application connects using TLS and expects the schema to exist before deployment. Do not expose TiDB credentials through `NEXT_PUBLIC_*` variables.
 
-For example, the WordPress URL format is `https://cms.example.org/wp-json`. The WordPress account needs permission to read, create, update, and delete posts and projects. The custom post type must use the REST route `projects` and be registered with `show_in_rest => true`.
+## Vercel
 
-The editor accepts JPEG, PNG, WebP, or GIF image uploads up to 5 MB. WordPress publishing uses the Media REST endpoint, so the account also needs the `upload_files` capability. In local development, uploads are stored under `public/uploads`; production deployments should use WordPress Media rather than local disk.
+Create or link the `jama-media-tech` Vercel project, connect it to `rufas-1234/jama-media-tech`, and add production environment variables for the five TiDB settings above, plus:
 
-Projects also need these registered REST metadata keys on the `project` post type: `jama_project_category`, `jama_project_location`, and `jama_cover_image`. News posts use `jama_cover_image` when a cover image URL is supplied. Register those keys with `show_in_rest => true` and string types so values can be read and written by this editor.
+- `ADMIN_USERNAME`: a non-default editorial account name.
+- `ADMIN_PASSWORD`: a unique, strong editorial password.
+- `ADMIN_SESSION_SECRET`: a randomly generated secret with at least 32 characters.
+- `NEXT_PUBLIC_SITE_URL`: the production Vercel URL or custom domain.
+- `NEXT_PUBLIC_BASE_PATH`: leave blank unless the site is intentionally hosted below a URL path.
+- `ENQUIRIES_ENABLED`: keep `false` until enquiry handling and privacy wording are configured.
 
-A minimal registration example for a site plugin or theme:
+Create a **public** Vercel Blob store and connect it to the project using Vercel's default OIDC authentication. Vercel adds the store/OIDC environment values; the app uses those on Vercel. `BLOB_READ_WRITE_TOKEN` is optional for local or non-Vercel use. Uploaded images are public because they are displayed by public pages. Keep any static token server-only.
 
-```php
-add_action('init', function () {
-	register_post_type('project', [
-		'label' => 'Projects',
-		'public' => true,
-		'show_in_rest' => true,
-		'rest_base' => 'projects',
-		'has_archive' => true,
-		'supports' => ['title', 'editor', 'excerpt', 'thumbnail'],
-	]);
+Use the same database and admin variables for Preview only if preview deployments should have access to production content. Otherwise configure a separate TiDB database and separate admin credentials for Preview.
 
-	foreach (['jama_project_category', 'jama_project_location', 'jama_cover_image'] as $key) {
-		register_post_meta('project', $key, [
-			'type' => 'string',
-			'single' => true,
-			'show_in_rest' => true,
-			'auth_callback' => static fn () => current_user_can('edit_posts'),
-		]);
-	}
+## Existing WordPress Content
 
-	register_post_meta('post', 'jama_cover_image', [
-		'type' => 'string',
-		'single' => true,
-		'show_in_rest' => true,
-		'auth_callback' => static fn () => current_user_can('edit_posts'),
-	]);
-});
-```
+The application no longer calls WordPress. Existing WordPress posts and site settings are **not imported automatically**; export and migrate the content and media into TiDB/Blob before cutover if those records need to be retained. The local JSON files are not a substitute for a WordPress export.
 
-After the WordPress values and REST fields are configured, the same `/admin/login` editor writes News to `/wp/v2/posts` and Projects to `/wp/v2/projects`. Published News appears on the homepage and `/news`; published Projects appear on `/projects`. Both types have dynamic detail routes.
+## Verify
 
-## Site Content Storage
-
-Site-wide editable information (company/contact details, vision, mission, homepage hero and custom sections, services, and team members) is saved in one private `site-settings` custom post. Register its REST route and metadata in a site plugin or theme:
-
-```php
-add_action('init', function () {
-	register_post_type('site_setting', [
-		'label' => 'Site Settings',
-		'public' => false,
-		'publicly_queryable' => false,
-		'show_ui' => false,
-		'show_in_rest' => true,
-		'rest_base' => 'site-settings',
-		'capability_type' => 'post',
-		'supports' => ['title', 'custom-fields'],
-	]);
-
-	register_post_meta('site_setting', 'jama_site_content', [
-		'type' => 'string',
-		'single' => true,
-		'show_in_rest' => true,
-		'auth_callback' => static fn () => current_user_can('edit_posts'),
-	]);
-});
-```
-
-The editor creates the private record on first save. For durable production image uploads, configure WordPress Media and grant the editorial account the `upload_files` capability.
-
-The admin session uses a signed, HTTP-only, strict same-site cookie and expires after eight hours. Change the local password and session secret before sharing the development server or deploying.
+After applying the schema and setting Vercel variables, deploy and sign in at `/admin/login`. Verify editing site content, publishing news/projects, and uploading an image. Do not rely on local JSON or `public/uploads` for production data.

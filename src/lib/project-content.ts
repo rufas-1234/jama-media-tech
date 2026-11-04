@@ -1,4 +1,4 @@
-import { getProjectBySlug, getProjects, plainText, type ContentItem } from '@/lib/wordpress';
+import { getProjectBySlug, getProjects, type ContentItem } from '@/lib/cms-content';
 
 export type ProjectCard = {
   slug: string;
@@ -18,15 +18,14 @@ export const fallbackProjects: ProjectCard[] = [
 ];
 
 export function toProjectCard(item: ContentItem): ProjectCard {
-  const text = (value: string) => plainText(value);
   return {
     slug: item.slug,
-    title: text(item.title.rendered),
-    description: text(item.excerpt?.rendered || item.content.rendered).slice(0, 260),
-    content: text(item.content.rendered),
-    category: String(item.meta?.jama_project_category ?? 'Project'),
-    location: String(item.meta?.jama_project_location ?? 'South Sudan'),
-    image: String(item.meta?.jama_cover_image ?? item._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? fallbackProjects[0].image),
+    title: item.title,
+    description: (item.excerpt || item.content).slice(0, 260),
+    content: item.content,
+    category: item.category || 'Project',
+    location: item.location || 'South Sudan',
+    image: item.imageUrl || fallbackProjects[0].image,
   };
 }
 

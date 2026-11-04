@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { hasAdminSession, isSameOriginRequest } from '@/lib/admin-auth';
-import { isWordPressAdminConfigured, uploadWordPressMedia } from '@/lib/wordpress-admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -46,11 +46,11 @@ export async function POST(request: Request) {
 
   const filename = `${randomUUID()}.${imageType.extension}`;
   try {
-    if (isWordPressAdminConfigured()) {
-      const url = await uploadWordPressMedia(filename, file.type, bytes);
-      return NextResponse.json({ url }, { headers: noStore });
+    if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
+      const blob = await put(filename, bytes, { access: 'public', contentType: file.type, addRandomSuffix: false });
+      return NextResponse.json({ url: blob.url }, { headers: noStore });
     }
-    if (process.env.WORDPRESS_API_URL || process.env.NODE_ENV !== 'development') {
+    if (process.env.NODE_ENV !== 'development') {
       return NextResponse.json({ error: 'Image storage is not configured for this server.' }, { status: 503, headers: noStore });
     }
 

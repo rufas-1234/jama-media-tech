@@ -27,6 +27,18 @@ function imageReference(value: unknown, name: string): string {
   throw new Error(`${name} must be an HTTP/HTTPS URL, an uploaded image, or an Unsplash photo ID.`);
 }
 
+function socialLink(value: unknown, name: string): string {
+  const result = text(value ?? '', name, 500);
+  if (!result) return '';
+  try {
+    const url = new URL(result);
+    if (url.protocol === 'https:' && url.hostname.includes('.')) return result;
+  } catch {
+    // Report invalid social URLs with a field-specific message below.
+  }
+  throw new Error(`${name} must be a secure HTTPS URL.`);
+}
+
 function stringList(value: unknown, name: string, maximumItems: number): string[] {
   if (!Array.isArray(value) || value.length > maximumItems) throw new Error(`${name} must contain no more than ${maximumItems} items.`);
   return value.map((item, index) => text(item, `${name} item ${index + 1}`, 240, true)).filter(Boolean);
@@ -70,6 +82,10 @@ function teamMember(value: unknown, index: number): TeamMember {
     role: text(value.role, 'Team member role', 160, true),
     biography: text(value.biography, 'Team member biography', 3000, true),
     imageUrl: imageReference(value.imageUrl, 'Team member image'),
+    linkedin: socialLink(value.linkedin, 'LinkedIn profile'),
+    facebook: socialLink(value.facebook, 'Facebook profile'),
+    instagram: socialLink(value.instagram, 'Instagram profile'),
+    x: socialLink(value.x, 'X profile'),
   };
 }
 
@@ -95,6 +111,8 @@ export function validateSiteContent(value: unknown): SiteContent {
       description: text(value.company.description, 'Company description', 1000, true),
       vision: text(value.company.vision, 'Company vision', 3000, true),
       mission: text(value.company.mission, 'Company mission', 3000, true),
+      direction: text(value.company.direction ?? '', 'Company direction', 3000),
+      operatingModel: text(value.company.operatingModel ?? '', 'Operating model', 3000),
     },
     homepage: {
       headline: text(value.homepage.headline, 'Homepage headline', 220, true),

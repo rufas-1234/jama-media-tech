@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2, Users } from 'lucide-react';
 import { imageSource } from '@/lib/content';
 import { getSiteContent } from '@/lib/site-content';
 
@@ -19,36 +19,43 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <section className="page-hero relative py-20 lg:py-28">
+      <section className="service-detail-hero relative overflow-hidden bg-[#17231d] py-16 text-white sm:py-20 lg:py-28">
         <div className="container relative z-10">
-          <p className="page-kicker">{service.short}</p>
-          <h1 className="page-title max-w-3xl">{service.title}</h1>
-          <p className="page-intro max-w-2xl">{service.introduction}</p>
+          <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#c5e8ed]">{service.number} / {service.short}</p>
+          <h1 className="max-w-4xl text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-white">{service.title}</h1>
+          <p className="mt-6 max-w-3xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">{service.introduction}</p>
+          <Link href="/request-quotation" className="btn btn-primary mt-8">
+            Discuss this service <ArrowRight className="h-5 w-5" />
+          </Link>
         </div>
       </section>
 
       <section className="section-surface py-16 lg:py-24">
         <div className="container">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-            <div>
+            <div className="service-capabilities-panel rounded-[1.75rem] border border-[#dfe5df] bg-white p-6 sm:p-8">
               <p className="page-kicker !bg-transparent !border-0 !p-0 !text-[#496b5b] !tracking-[0.2em] !text-xs !mb-4">What we deliver</p>
-              <h2 className="mb-5 text-3xl text-[#1d1f20] md:text-4xl">{service.title}</h2>
-              <p className="mb-6 text-lg leading-8 text-[#4f5557]">{service.introduction}</p>
-              <div className="space-y-4">
+              <h2 className="mb-4 text-3xl text-[#1d1f20] md:text-4xl">Capabilities for your requirements.</h2>
+              <p className="mb-7 text-base leading-7 text-[#56615a]">{service.description}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
                 {service.capabilities.map((capability) => (
-                  <div key={capability} className="flex items-start gap-3 rounded-[1.25rem] border border-[#d9d0c4] bg-white/80 p-4">
-                    <CheckCircle2 className="mt-1 h-5 w-5 text-[var(--color-emerald)]" />
-                    <span className="text-base text-[#1d1f20]">{capability}</span>
+                  <div key={capability} className="flex items-start gap-3 rounded-xl border border-[#e7ebe7] bg-[#f7f8f5] p-4">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#28583e]" />
+                    <span className="text-sm leading-6 text-[#26312a]">{capability}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="rounded-[2rem] border border-[#d9d0c4] bg-white/80 p-8 shadow-[0_18px_35px_rgba(17,24,26,0.04)]">
-              <h3 className="mb-4 text-2xl text-[#1d1f20]">Target clients</h3>
-              <p className="mb-6 text-base leading-7 text-[#4f5557]">{service.audience}</p>
-              <div className="rounded-[1.5rem] border border-[#d9d0c4] bg-[#f4f0ea] p-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-emerald)]">Delivery approach</p>
-                <p className="text-base leading-7 text-[#4f5557]">We align the right resources, operational model and delivery plan to the specific needs of each organisation and project environment.</p>
+            <div className="service-audience-panel rounded-[1.75rem] border border-[#dfe5df] bg-[#f1f4f0] p-6 sm:p-8">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#17231d] text-[#69d6ec]"><Users className="h-5 w-5" /></span>
+              <h3 className="mb-3 mt-6 text-2xl text-[#1d1f20]">Who we work with</h3>
+              <p className="text-base leading-7 text-[#4f5557]">{service.audience}</p>
+              <div className="mt-8 border-t border-[#d9e0d9] pt-6">
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#28583e]">A considered approach</p>
+                <p className="text-sm leading-7 text-[#4f5557]">We align scope, resources and delivery around your requirements and operating context.</p>
+                <Link href="/contact" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#28583e] hover:text-[#17231d]">
+                  Talk with our team <ArrowUpRight className="h-4 w-4" />
+                </Link>
               </div>
             </div>
           </div>
@@ -68,9 +75,9 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                   <img src={imageSource(item.image, 800)} alt={item.alt} className="h-full w-full object-cover" />
                 </div>
                 <div className="p-6">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-emerald)]">{item.short}</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#28583e]">{item.short}</p>
                   <h3 className="mb-3 text-2xl text-[#1d1f20]">{item.title}</h3>
-                  <span className="inline-flex items-center gap-2 font-semibold text-[var(--color-emerald)]">
+                  <span className="inline-flex items-center gap-2 font-semibold text-[#28583e]">
                     View service <ArrowRight className="h-4 w-4" />
                   </span>
                 </div>

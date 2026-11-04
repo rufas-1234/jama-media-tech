@@ -1,4 +1,4 @@
-import { getNews, plainText, type ContentItem } from '@/lib/wordpress';
+import { getNews, type ContentItem } from '@/lib/cms-content';
 
 export type NewsCard = {
   slug: string;
@@ -22,13 +22,13 @@ function displayDate(value: string) {
 }
 
 export function toNewsCards(items: ContentItem[]): NewsCard[] {
-  return items.filter((item) => item.slug && item.title?.rendered).map((item) => ({
+  return items.filter((item) => item.slug && item.title).map((item) => ({
     slug: item.slug,
-    title: plainText(item.title.rendered),
-    excerpt: plainText(item.excerpt?.rendered || item.content.rendered).slice(0, 220),
-    content: plainText(item.content.rendered),
+    title: item.title,
+    excerpt: (item.excerpt || item.content).slice(0, 220),
+    content: item.content,
     date: displayDate(item.date),
-    image: String(item.meta?.jama_cover_image ?? item._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? fallbackArticles[0].image),
+    image: item.imageUrl || fallbackArticles[0].image,
   }));
 }
 

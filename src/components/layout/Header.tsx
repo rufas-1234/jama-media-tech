@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { BrandLockup } from '@/components/layout/BrandLockup';
 
 type HeaderProps = {
   companyName: string;
@@ -22,24 +22,11 @@ export function Header({ companyName, location, services }: HeaderProps) {
   return (
     <header className="site-header sticky top-0 z-50 border-b border-[#dfe5df] bg-[#fbfcfa]/92 backdrop-blur-xl">
       <nav aria-label="Main navigation" className="container flex h-[4.75rem] items-center justify-between gap-5">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white">
-            <Image
-              src="/images/jama-tech-logo.jpeg"
-              alt=""
-              width={104}
-              height={74}
-              priority
-              className="absolute left-1/2 top-[-8px] max-w-none -translate-x-1/2"
-            />
-          </span>
-          <div className="flex flex-col">
-            <span className="text-lg font-semibold leading-tight text-[#172019]">{companyName}</span>
-            <span className="text-[11px] uppercase tracking-[0.2em] text-[#56615a]">{location}</span>
-          </div>
+        <Link href="/" aria-label={`${companyName}, ${location}`} className="min-w-0 shrink-0">
+          <BrandLockup companyName={companyName} location={location} />
         </Link>
 
-        <div className="hidden items-center gap-1 text-[13px] xl:flex">
+        <div className="liquid-nav hidden items-center gap-1 text-[13px] backdrop-blur-2xl backdrop-saturate-150 xl:flex">
           <Link href="/" aria-current={isActive('/') ? 'page' : undefined} className={navLinkClass('/')}>Home</Link>
           <Link href="/about" aria-current={isActive('/about') ? 'page' : undefined} className={navLinkClass('/about')}>About</Link>
           <div

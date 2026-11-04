@@ -6,7 +6,7 @@ const config: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      ...(process.env.WORDPRESS_MEDIA_HOST ? [{ protocol: 'https' as const, hostname: process.env.WORDPRESS_MEDIA_HOST }] : []),
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
   async headers() {

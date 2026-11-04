@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import type { SiteContent } from '@/lib/site-content';
+import { BrandLockup } from '@/components/layout/BrandLockup';
 
 type FooterProps = {
   company: SiteContent['company'];
@@ -15,19 +15,7 @@ export function Footer({ company, services }: FooterProps) {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-3">
-              <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-full bg-white">
-                <Image
-                  src="/images/jama-tech-logo.jpeg"
-                  alt=""
-                  width={104}
-                  height={74}
-                  className="absolute left-1/2 top-[-8px] max-w-none -translate-x-1/2"
-                />
-              </span>
-              <div className="flex flex-col">
-                <span className="text-lg font-semibold text-[#172019]">{company.name}</span>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-[#56615a]">{company.location}</span>
-              </div>
+              <BrandLockup companyName={company.name} location={company.location} footer />
             </div>
             <p className="max-w-sm text-sm leading-7 text-[#48534b]">
               {company.description}

@@ -7,6 +7,8 @@ export const company = {
   vision: 'To be South Sudan’s leading social enterprise in driving sustainable community development, empowering organizations through cutting-edge technology, eco-friendly resource management, and dependable supply chain logistics.',
   mission: 'To drive sustainable growth and resilience across South Sudan by delivering reliable supply chain solutions, eco-friendly recycling innovations, and robust digital infrastructure—empowering communities, businesses, and development partners to thrive in a connected world.',
 };
+export const companyDirection = 'Bring practical technology, dependable supply and responsible resource use together to strengthen how organisations and communities operate.';
+export const companyOperatingModel = 'We begin with the partner’s operating context, agree a practical scope, coordinate the right capabilities and communicate delivery clearly from start to close-out.';
 export const services = [
   {
     slug: 'food-and-nfis', number: '01', short: 'Supply & logistics', title: 'Food & Non-Food Items Supply',

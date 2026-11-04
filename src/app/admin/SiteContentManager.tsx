@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FilePlus2, LoaderCircle, Save, Trash2 } from 'lucide-react';
-import { projectCategories } from '@/lib/content';
+import { companyDirection, companyOperatingModel, projectCategories } from '@/lib/content';
 import type { HomeSection, Service, SiteContent, TeamMember } from '@/lib/site-content';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
@@ -14,7 +14,7 @@ const emptyService = (index: number): Service => ({
   image: 'photo-1522202176988-66273c2fd55f', alt: '', capabilities: [], audience: '',
 });
 
-const emptyTeamMember = (): TeamMember => ({ id: crypto.randomUUID(), name: '', role: '', biography: '', imageUrl: '' });
+const emptyTeamMember = (): TeamMember => ({ id: crypto.randomUUID(), name: '', role: '', biography: '', imageUrl: '', linkedin: '', facebook: '', instagram: '', x: '' });
 const emptyHomeSection = (): HomeSection => ({ id: crypto.randomUUID(), eyebrow: '', title: '', body: '', imageUrl: '', enabled: true });
 
 function Field({ label, value, onChange, multiline = false, hint }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean; hint?: string }) {
@@ -30,7 +30,7 @@ function Field({ label, value, onChange, multiline = false, hint }: { label: str
 export function SiteContentManager() {
   const router = useRouter();
   const [content, setContent] = useState<SiteContent | null>(null);
-  const [storage, setStorage] = useState<'local' | 'wordpress' | null>(null);
+  const [storage, setStorage] = useState<'local' | 'tidb' | null>(null);
   const [area, setArea] = useState<EditorArea>('company');
   const [serviceIndex, setServiceIndex] = useState(0);
   const [teamId, setTeamId] = useState<string | null>(null);
@@ -135,7 +135,7 @@ export function SiteContentManager() {
   return (
     <div>
       {storage && <p className="mb-5 rounded-xl border border-[#dfe5df] bg-white/80 px-4 py-3 text-sm text-[#48534b]">
-        {storage === 'wordpress' ? 'Connected to WordPress site settings.' : 'Local preview storage. Configure WordPress before deploying these edits.'}
+        {storage === 'tidb' ? 'Connected to TiDB Cloud.' : 'Local preview storage. Configure TiDB Cloud before deploying these edits.'}
       </p>}
       {notice && <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
       {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
@@ -165,6 +165,15 @@ export function SiteContentManager() {
             <div className="md:col-span-2"><Field label="Company description" value={content.company.description} onChange={(value) => updateCompany('description', value)} multiline /></div>
             <Field label="Vision" value={content.company.vision} onChange={(value) => updateCompany('vision', value)} multiline />
             <Field label="Mission" value={content.company.mission} onChange={(value) => updateCompany('mission', value)} multiline />
+          </div>
+        </section>
+
+        <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
+          <h2 className="text-xl text-[#172019]">About page direction &amp; operating model</h2>
+          <p className="mb-5 mt-2 text-sm leading-6 text-[#56615a]">These statements appear on the public About page. Keep them aligned with the company’s approved strategy and delivery practices.</p>
+          <div className="grid gap-5 md:grid-cols-2">
+            <Field label="Strategic direction" value={content.company.direction ?? companyDirection} onChange={(value) => updateCompany('direction', value)} multiline />
+            <Field label="Operating model" value={content.company.operatingModel ?? companyOperatingModel} onChange={(value) => updateCompany('operatingModel', value)} multiline />
           </div>
         </section>
 
@@ -234,6 +243,10 @@ export function SiteContentManager() {
             <Field label="Role" value={selectedTeamMember.role} onChange={(value) => updateTeamMember(selectedTeamMember.id, { role: value })} />
             <div className="md:col-span-2"><Field label="Biography" value={selectedTeamMember.biography} onChange={(value) => updateTeamMember(selectedTeamMember.id, { biography: value })} multiline /></div>
             <div className="md:col-span-2"><ImageUploadField label="Team photo (optional)" value={selectedTeamMember.imageUrl} onChange={(value) => updateTeamMember(selectedTeamMember.id, { imageUrl: value })} /></div>
+            <Field label="LinkedIn profile URL" value={selectedTeamMember.linkedin ?? ''} onChange={(value) => updateTeamMember(selectedTeamMember.id, { linkedin: value })} hint="Optional. Use the full HTTPS profile URL." />
+            <Field label="Facebook profile URL" value={selectedTeamMember.facebook ?? ''} onChange={(value) => updateTeamMember(selectedTeamMember.id, { facebook: value })} hint="Optional. Use the full HTTPS profile URL." />
+            <Field label="Instagram profile URL" value={selectedTeamMember.instagram ?? ''} onChange={(value) => updateTeamMember(selectedTeamMember.id, { instagram: value })} hint="Optional. Use the full HTTPS profile URL." />
+            <Field label="X profile URL" value={selectedTeamMember.x ?? ''} onChange={(value) => updateTeamMember(selectedTeamMember.id, { x: value })} hint="Optional. Use the full HTTPS profile URL." />
           </div>
         </section>}
       </div>}

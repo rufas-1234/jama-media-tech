@@ -2,8 +2,9 @@ import 'server-only';
 
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { company as defaultCompany, services as defaultServices } from '@/lib/content';
-import { getWordPressSiteContent, isWordPressAdminConfigured, saveWordPressSiteContent } from '@/lib/wordpress-admin';
+import { company as defaultCompany, companyDirection, companyOperatingModel, services as defaultServices } from '@/lib/content';
+import { getCachedTiDBSiteContent, getTiDBSiteContent, saveTiDBSiteContent } from '@/lib/tidb-store';
+import { tidbHasConfiguration, tidbIsConfigured } from '@/lib/tidb';
 
 export type SiteCompany = {
   name: string;
@@ -13,6 +14,8 @@ export type SiteCompany = {
   description: string;
   vision: string;
   mission: string;
+  direction?: string;
+  operatingModel?: string;
 };
 
 export type HomeSection = {
@@ -30,6 +33,10 @@ export type TeamMember = {
   role: string;
   biography: string;
   imageUrl: string;
+  linkedin?: string;
+  facebook?: string;
+  instagram?: string;
+  x?: string;
 };
 
 export type Service = (typeof defaultServices)[number];
@@ -46,7 +53,11 @@ export type SiteContent = {
 };
 
 export const defaultSiteContent: SiteContent = {
-  company: { ...defaultCompany },
+  company: {
+    ...defaultCompany,
+    direction: companyDirection,
+    operatingModel: companyOperatingModel,
+  },
   homepage: {
     headline: 'Innovating for a sustainable, connected & resilient future.',
     introduction: 'A South Sudanese social enterprise turning local capacity into lasting resilience.',
@@ -56,7 +67,7 @@ export const defaultSiteContent: SiteContent = {
   teamMembers: [],
 };
 
-export type SiteContentStorage = 'local' | 'wordpress' | 'unavailable';
+export type SiteContentStorage = 'local' | 'tidb' | 'unavailable';
 
 const localStorePath = join(process.cwd(), 'data', 'site-content.json');
 
@@ -65,8 +76,8 @@ function cloneDefaults(): SiteContent {
 }
 
 export function siteContentStorage(): SiteContentStorage {
-  if (isWordPressAdminConfigured()) return 'wordpress';
-  if (process.env.WORDPRESS_API_URL) return 'unavailable';
+  if (tidbIsConfigured()) return 'tidb';
+  if (tidbHasConfiguration()) return 'unavailable';
   return process.env.NODE_ENV === 'development' ? 'local' : 'unavailable';
 }
 
@@ -83,28 +94,31 @@ async function readLocalContent(): Promise<SiteContent> {
 }
 
 export async function getSiteContent(): Promise<SiteContent> {
-  if (isWordPressAdminConfigured()) {
+  if (tidbIsConfigured()) {
     try {
-      return (await getWordPressSiteContent()) ?? cloneDefaults();
+      return (await getCachedTiDBSiteContent()) ?? cloneDefaults();
     } catch (error) {
-      console.error('WordPress site content unavailable.');
+      console.error('TiDB site content is unavailable.', error);
       return cloneDefaults();
     }
   }
-  if (process.env.NODE_ENV === 'development' && !process.env.WORDPRESS_API_URL) return readLocalContent();
+  if (process.env.NODE_ENV === 'development' && !tidbHasConfiguration()) return readLocalContent();
   return cloneDefaults();
 }
 
 export async function getAdminSiteContent(): Promise<SiteContent> {
   const storage = siteContentStorage();
-  if (storage === 'wordpress') return (await getWordPressSiteContent()) ?? cloneDefaults();
+  if (storage === 'tidb') return (await getTiDBSiteContent()) ?? cloneDefaults();
   if (storage === 'local') return readLocalContent();
   throw new Error('Site content storage is not configured for this server.');
 }
 
 export async function saveSiteContent(content: SiteContent): Promise<SiteContent> {
   const storage = siteContentStorage();
-  if (storage === 'wordpress') return saveWordPressSiteContent(content);
+  if (storage === 'tidb') {
+    await saveTiDBSiteContent(content);
+    return content;
+  }
   if (storage === 'unavailable') throw new Error('Site content storage is not configured for this server.');
   await mkdir(dirname(localStorePath), { recursive: true });
   const temporaryPath = `${localStorePath}.tmp`;

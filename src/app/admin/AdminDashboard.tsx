@@ -34,7 +34,7 @@ export function AdminDashboard() {
   const [contentType, setContentType] = useState<ContentKind>('news');
   const [draft, setDraft] = useState<Draft>(emptyDraft('news'));
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [storage, setStorage] = useState<'local' | 'wordpress' | null>(null);
+  const [storage, setStorage] = useState<'local' | 'tidb' | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -161,7 +161,7 @@ export function AdminDashboard() {
         </div>
 
         {storage && <p className="mb-6 rounded-xl border border-[#dfe5df] bg-white/80 px-4 py-3 text-sm text-[#48534b]">
-          {storage === 'wordpress' ? 'Connected to WordPress. Published posts appear on the site.' : 'Local preview storage. Posts are saved to this development workspace; connect WordPress before deployment.'}
+          {storage === 'tidb' ? 'Connected to TiDB Cloud. Published posts appear on the site.' : 'Local preview storage. Posts are saved to this development workspace; configure TiDB Cloud before deployment.'}
         </p>}
         {notice && <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
         {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
