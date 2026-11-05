@@ -192,7 +192,7 @@ export function AdminDashboard() {
                   <li key={post.id} className="flex items-start justify-between gap-3 py-4 first:pt-0 last:pb-0">
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-[#1b211d]">{post.title}</p>
-                      <p className="mt-1 text-xs text-[#56615a]">{post.status === 'publish' ? 'Published' : 'Draft'} · {post.contentType === 'project' ? `${post.category} · ${post.location} · /projects/${post.slug}` : `/news/${post.slug}`}</p>
+                      <p className="mt-1 text-xs text-[#56615a]">{post.status === 'publish' ? 'Published' : 'Draft'} · {post.contentType === 'project' ? `${post.category} · ${post.location} · /projects/${post.slug}` : `${post.category || 'News & insights'} · /news/${post.slug}`}</p>
                     </div>
                     <div className="flex shrink-0 gap-1">
                       <button type="button" aria-label={`Edit ${post.title}`} title="Edit post" className="rounded-lg p-2 text-[#354239] hover:bg-[#f1f4f0]" onClick={() => editPost(post)}><Pencil className="h-4 w-4" /></button>
@@ -235,6 +235,10 @@ export function AdminDashboard() {
                   <input required maxLength={160} className="form-field" value={draft.location} onChange={(event) => setDraft({ ...draft, location: event.target.value })} placeholder="Juba, South Sudan" />
                 </label>
               </div>}
+              {contentType === 'news' && <label className="block">
+                <span className="form-label">Category (optional)</span>
+                <input maxLength={100} className="form-field" value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value })} placeholder="News, Community, Technology…" />
+              </label>}
               <ImageUploadField label="Cover image (optional)" value={draft.imageUrl} onChange={(imageUrl) => setDraft({ ...draft, imageUrl })} />
               <label className="block">
                 <span className="form-label">{contentType === 'project' ? 'Project details' : 'Article body'}</span>

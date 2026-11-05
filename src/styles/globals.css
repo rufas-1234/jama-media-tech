@@ -629,6 +629,38 @@ main a[class*="group"][class*="overflow-hidden"][class*="rounded-"]:hover img {
   box-shadow: 0 10px 22px rgba(24,43,31,0.16);
 }
 
+.news-feature,
+.news-card {
+  animation: section-arrive 650ms var(--ease-fluid) both;
+}
+
+.news-card {
+  transition: transform 300ms var(--ease-fluid), box-shadow 300ms ease;
+}
+
+.news-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 44px rgba(24,43,31,0.12);
+}
+
+.news-cover-image {
+  transition: transform 800ms var(--ease-fluid), filter 500ms ease;
+}
+
+.news-feature:hover .news-cover-image,
+.news-card:hover .news-cover-image {
+  transform: scale(1.045);
+  filter: saturate(1.08);
+}
+
+.news-card:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.news-card:nth-child(3) {
+  animation-delay: 160ms;
+}
+
 @keyframes section-arrive {
   from {
     opacity: 0;
