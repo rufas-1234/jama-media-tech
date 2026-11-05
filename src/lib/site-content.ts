@@ -30,6 +30,19 @@ export type HomeSection = {
   buttonHref?: string;
 };
 
+export type HomeHeroSlide = {
+  id: string;
+  eyebrow: string;
+  headline: string;
+  introduction: string;
+  imageUrl: string;
+  imageAlt: string;
+  primaryCtaLabel: string;
+  primaryCtaHref: string;
+  secondaryCtaLabel: string;
+  secondaryCtaHref: string;
+};
+
 export type EditablePage = {
   label: string;
   eyebrow: string;
@@ -77,6 +90,7 @@ export type SiteContent = {
     primaryCtaHref: string;
     secondaryCtaLabel: string;
     secondaryCtaHref: string;
+    heroSlides: HomeHeroSlide[];
     sections: HomeSection[];
   };
   services: Service[];
@@ -233,6 +247,18 @@ export const defaultSiteContent: SiteContent = {
     primaryCtaHref: '/services',
     secondaryCtaLabel: 'Discover Jama Tech',
     secondaryCtaHref: '/about',
+    heroSlides: [{
+      id: 'home-hero-1',
+      eyebrow: 'South Sudanese social enterprise',
+      headline: 'Innovating for a sustainable, connected & resilient future.',
+      introduction: 'A South Sudanese social enterprise turning local capacity into lasting resilience.',
+      imageUrl: 'photo-1593113630400-ea4288922497',
+      imageAlt: 'Community partners working together',
+      primaryCtaLabel: 'Explore our services',
+      primaryCtaHref: '/services',
+      secondaryCtaLabel: 'Discover Jama Tech',
+      secondaryCtaHref: '/about',
+    }],
     sections: [
       section('home-partnerships', 'Our partnerships', 'Built around the way you operate.', 'Local knowledge and practical capability across humanitarian, government, private sector and community partnerships.', 'photo-1521737711867-e3b97375f902', [
         { title: 'Humanitarian & Government', body: 'Compliant procurement, documented distribution and field-ready logistics for agencies delivering at scale.', imageUrl: 'photo-1593113630400-ea4288922497' },
@@ -313,11 +339,26 @@ export async function getAdminSiteContent(): Promise<SiteContent> {
 }
 
 export function normalizeSiteContent(value: SiteContent): SiteContent {
+  const defaultHomepage = cloneDefaults().homepage;
+  const savedHomepage = value.homepage;
+  const savedSlides = (savedHomepage as Partial<SiteContent['homepage']>).heroSlides;
+  const heroSlides = savedSlides?.length ? savedSlides : [{
+    id: 'home-hero-1',
+    eyebrow: savedHomepage?.eyebrow ?? defaultHomepage.eyebrow,
+    headline: savedHomepage?.headline ?? defaultHomepage.headline,
+    introduction: savedHomepage?.introduction ?? defaultHomepage.introduction,
+    imageUrl: savedHomepage?.heroImage ?? defaultHomepage.heroImage,
+    imageAlt: '',
+    primaryCtaLabel: savedHomepage?.primaryCtaLabel ?? defaultHomepage.primaryCtaLabel,
+    primaryCtaHref: savedHomepage?.primaryCtaHref ?? defaultHomepage.primaryCtaHref,
+    secondaryCtaLabel: savedHomepage?.secondaryCtaLabel ?? defaultHomepage.secondaryCtaLabel,
+    secondaryCtaHref: savedHomepage?.secondaryCtaHref ?? defaultHomepage.secondaryCtaHref,
+  }];
   return {
     ...cloneDefaults(),
     ...value,
     company: { ...cloneDefaults().company, ...value.company },
-    homepage: { ...cloneDefaults().homepage, ...value.homepage, sections: mergeSections(cloneDefaults().homepage.sections, value.homepage?.sections ?? []) },
+    homepage: { ...defaultHomepage, ...savedHomepage, heroSlides, sections: mergeSections(defaultHomepage.sections, savedHomepage?.sections ?? []) },
     services: value.services?.length ? value.services : cloneDefaults().services,
     teamMembers: value.teamMembers ?? [],
     pages: { ...defaultPages, ...value.pages },

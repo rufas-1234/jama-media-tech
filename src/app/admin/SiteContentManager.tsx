@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FilePlus2, LoaderCircle, Save, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, FilePlus2, LoaderCircle, Save, Trash2 } from 'lucide-react';
 import { projectCategories } from '@/lib/content';
-import type { EditablePage, HomeSection, Service, SiteContent, SiteNavigationItem, TeamMember } from '@/lib/site-content';
+import type { EditablePage, HomeHeroSlide, HomeSection, Service, SiteContent, SiteNavigationItem, TeamMember } from '@/lib/site-content';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
 export type EditorArea = 'home' | 'pages' | 'services' | 'team' | 'company' | 'navigation';
@@ -16,6 +16,7 @@ const emptyService = (index: number): Service => ({
 
 const emptyTeamMember = (): TeamMember => ({ id: crypto.randomUUID(), name: '', role: '', biography: '', imageUrl: '', linkedin: '', facebook: '', instagram: '', x: '' });
 const emptyHomeSection = (): HomeSection => ({ id: crypto.randomUUID(), eyebrow: '', title: '', body: '', imageUrl: '', enabled: true, items: [] });
+const emptyHeroSlide = (): HomeHeroSlide => ({ id: crypto.randomUUID(), eyebrow: '', headline: 'New homepage slide', introduction: '', imageUrl: '', imageAlt: '', primaryCtaLabel: '', primaryCtaHref: '', secondaryCtaLabel: '', secondaryCtaHref: '' });
 
 function Field({ label, value, onChange, multiline = false, hint, onBlur }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean; hint?: string; onBlur?: () => void }) {
   return (
@@ -129,8 +130,21 @@ export function SiteContentManager({ area }: { area: EditorArea }) {
     setContent((current) => current ? { ...current, company: { ...current.company, [key]: value } } : current);
   }
 
-  function updateHomepage(key: keyof SiteContent['homepage'], value: string) {
-    setContent((current) => current ? { ...current, homepage: { ...current.homepage, [key]: value } } : current);
+  function updateHeroSlides(heroSlides: HomeHeroSlide[]) {
+    setContent((current) => current ? { ...current, homepage: { ...current.homepage, heroSlides } } : current);
+  }
+
+  function updateHeroSlide(id: string, patch: Partial<HomeHeroSlide>) {
+    if (content) updateHeroSlides(content.homepage.heroSlides.map((slide) => slide.id === id ? { ...slide, ...patch } : slide));
+  }
+
+  function moveHeroSlide(index: number, offset: -1 | 1) {
+    if (!content) return;
+    const heroSlides = [...content.homepage.heroSlides];
+    const targetIndex = index + offset;
+    if (targetIndex < 0 || targetIndex >= heroSlides.length) return;
+    [heroSlides[index], heroSlides[targetIndex]] = [heroSlides[targetIndex], heroSlides[index]];
+    updateHeroSlides(heroSlides);
   }
 
   function updatePage(slug: string, patch: Partial<EditablePage>) {
@@ -243,16 +257,34 @@ export function SiteContentManager({ area }: { area: EditorArea }) {
 
         {area === 'home' && <>
         <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
-          <h2 className="mb-5 text-xl text-[#172019]">Homepage hero</h2>
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Hero eyebrow" value={content.homepage.eyebrow} onChange={(value) => updateHomepage('eyebrow', value)} />
-            <Field label="Headline" value={content.homepage.headline} onChange={(value) => updateHomepage('headline', value)} multiline />
-            <Field label="Introduction" value={content.homepage.introduction} onChange={(value) => updateHomepage('introduction', value)} multiline />
-            <Field label="Primary button label" value={content.homepage.primaryCtaLabel} onChange={(value) => updateHomepage('primaryCtaLabel', value)} />
-            <Field label="Primary button link" value={content.homepage.primaryCtaHref} onChange={(value) => updateHomepage('primaryCtaHref', value)} />
-            <Field label="Secondary button label" value={content.homepage.secondaryCtaLabel} onChange={(value) => updateHomepage('secondaryCtaLabel', value)} />
-            <Field label="Secondary button link" value={content.homepage.secondaryCtaHref} onChange={(value) => updateHomepage('secondaryCtaHref', value)} />
-            <ImageUploadField label="Hero image" value={content.homepage.heroImage} onChange={(value) => updateHomepage('heroImage', value)} />
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+            <div><h2 className="text-xl text-[#172019]">Homepage hero slider</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-[#56615a]">Create up to four rotating hero slides. Use a landscape image at least 1920 × 1080; it will be fitted without cropping or zooming.</p></div>
+            <button type="button" className="btn btn-secondary" disabled={content.homepage.heroSlides.length >= 4} onClick={() => updateHeroSlides([...content.homepage.heroSlides, emptyHeroSlide()])}><FilePlus2 className="h-4 w-4" /> Add slide</button>
+          </div>
+          <div className="space-y-4">
+            {content.homepage.heroSlides.map((slide, index) => (
+              <div key={slide.id} className="rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-4">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <h3 className="font-semibold text-[#172019]">Slide {index + 1}</h3>
+                  <div className="flex items-center gap-1">
+                    <button type="button" aria-label={`Move slide ${index + 1} up`} title="Move up" disabled={index === 0} className="rounded-lg p-2 text-[#354239] hover:bg-white disabled:opacity-40" onClick={() => moveHeroSlide(index, -1)}><ArrowUp className="h-4 w-4" /></button>
+                    <button type="button" aria-label={`Move slide ${index + 1} down`} title="Move down" disabled={index === content.homepage.heroSlides.length - 1} className="rounded-lg p-2 text-[#354239] hover:bg-white disabled:opacity-40" onClick={() => moveHeroSlide(index, 1)}><ArrowDown className="h-4 w-4" /></button>
+                    <button type="button" aria-label={`Remove slide ${index + 1}`} title="Remove slide" disabled={content.homepage.heroSlides.length <= 1} className="rounded-lg p-2 text-red-700 hover:bg-red-50 disabled:opacity-40" onClick={() => updateHeroSlides(content.homepage.heroSlides.filter((item) => item.id !== slide.id))}><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="Eyebrow" value={slide.eyebrow} onChange={(value) => updateHeroSlide(slide.id, { eyebrow: value })} />
+                  <Field label="Headline" value={slide.headline} onChange={(value) => updateHeroSlide(slide.id, { headline: value })} multiline />
+                  <div className="md:col-span-2"><Field label="Introduction" value={slide.introduction} onChange={(value) => updateHeroSlide(slide.id, { introduction: value })} multiline /></div>
+                  <div className="md:col-span-2"><ImageUploadField label="Hero image" value={slide.imageUrl} hint="Use a high-resolution landscape image (1920 × 1080 or larger) for a crisp, uncropped display. JPEG, PNG or WebP up to 5 MB." onChange={(value) => updateHeroSlide(slide.id, { imageUrl: value })} /></div>
+                  <div className="md:col-span-2"><Field label="Image description (for accessibility)" value={slide.imageAlt} onChange={(value) => updateHeroSlide(slide.id, { imageAlt: value })} /></div>
+                  <Field label="Primary button label (optional)" value={slide.primaryCtaLabel} onChange={(value) => updateHeroSlide(slide.id, { primaryCtaLabel: value })} />
+                  <Field label="Primary button link (optional)" value={slide.primaryCtaHref} onChange={(value) => updateHeroSlide(slide.id, { primaryCtaHref: value })} />
+                  <Field label="Secondary button label (optional)" value={slide.secondaryCtaLabel} onChange={(value) => updateHeroSlide(slide.id, { secondaryCtaLabel: value })} />
+                  <Field label="Secondary button link (optional)" value={slide.secondaryCtaHref} onChange={(value) => updateHeroSlide(slide.id, { secondaryCtaHref: value })} />
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

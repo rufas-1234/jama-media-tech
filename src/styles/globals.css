@@ -323,6 +323,14 @@ img {
   font-weight: 600;
 }
 
+.home-hero-content {
+  animation: home-hero-enter 600ms var(--ease-fluid) both;
+}
+
+.home-hero-image {
+  animation: home-hero-image-enter 800ms var(--ease-fluid) both;
+}
+
 .team-profile:hover {
   transform: translateY(-5px);
   border-color: rgba(40,88,62,0.32);
@@ -706,6 +714,16 @@ main a[class*="group"][class*="overflow-hidden"][class*="rounded-"]:hover img {
 @keyframes image-arrive {
   from { opacity: 0.72; transform: translateY(12px) scale(0.99); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes home-hero-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes home-hero-image-enter {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
 }
 
 footer {

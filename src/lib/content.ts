@@ -59,5 +59,20 @@ export const leadershipRoles = [
 ];
 export const projectCategories = ['ICT Infrastructure', 'Web Development', 'Supply Chain', 'Food & NFIs', 'Recycling', 'Digital Media', 'Community Initiatives'];
 export const enquiryCategories = ['Food and NFIs', 'Plastic Recycling', 'ICT Consultancy', 'Internet Infrastructure', 'Web Development', 'Partnership', 'Other'];
-export const photo = (id: string, width = 1400) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
+export const photo = (id: string, width = 1400, quality = 85) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=${quality}`;
 export const imageSource = (value: string, width = 1400) => value.startsWith('http') || value.startsWith('/') ? value : photo(value, width);
+export function heroImageSource(value: string) {
+  if (!value) return '';
+  if (!value.startsWith('http') && !value.startsWith('/')) return photo(value, 2560, 95);
+  try {
+    const url = new URL(value);
+    if (url.hostname === 'images.unsplash.com') {
+      url.searchParams.set('w', '2560');
+      url.searchParams.set('q', '95');
+      return url.toString();
+    }
+  } catch {
+    return value;
+  }
+  return value;
+}

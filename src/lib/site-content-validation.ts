@@ -1,4 +1,4 @@
-import type { EditablePage, HomeSection, Service, SiteContent, SiteNavigation, TeamMember } from '@/lib/site-content';
+import type { EditablePage, HomeHeroSlide, HomeSection, Service, SiteContent, SiteNavigation, TeamMember } from '@/lib/site-content';
 import { defaultPages, defaultSiteContent, normalizeSiteContent } from '@/lib/site-content';
 
 type RecordValue = Record<string, unknown>;
@@ -92,6 +92,26 @@ function homeSection(value: unknown, index: number): HomeSection {
   };
 }
 
+function homeHeroSlide(value: unknown, index: number): HomeHeroSlide {
+  if (!isRecord(value)) throw new Error(`Homepage hero slide ${index + 1} is invalid.`);
+  const primaryCtaLabel = text(value.primaryCtaLabel ?? '', 'Hero primary button', 100);
+  const secondaryCtaLabel = text(value.secondaryCtaLabel ?? '', 'Hero secondary button', 100);
+  const primaryCtaHref = text(value.primaryCtaHref ?? '', 'Hero primary button link', 500);
+  const secondaryCtaHref = text(value.secondaryCtaHref ?? '', 'Hero secondary button link', 500);
+  return {
+    id: text(value.id, `Homepage hero slide ${index + 1} ID`, 80, true),
+    eyebrow: text(value.eyebrow ?? '', 'Hero eyebrow', 120),
+    headline: text(value.headline, 'Hero headline', 220, true),
+    introduction: text(value.introduction ?? '', 'Hero introduction', 1000),
+    imageUrl: imageReference(value.imageUrl ?? '', 'Hero image'),
+    imageAlt: text(value.imageAlt ?? '', 'Hero image description', 240),
+    primaryCtaLabel,
+    primaryCtaHref: primaryCtaHref ? safePath(primaryCtaHref, 'Hero primary button link') : '',
+    secondaryCtaLabel,
+    secondaryCtaHref: secondaryCtaHref ? safePath(secondaryCtaHref, 'Hero secondary button link') : '',
+  };
+}
+
 function teamMember(value: unknown, index: number): TeamMember {
   if (!isRecord(value)) throw new Error(`Team member ${index + 1} is invalid.`);
   return {
@@ -121,6 +141,21 @@ export function validateSiteContent(value: unknown): SiteContent {
   }
 
   const normalized = normalizeSiteContent(value as unknown as SiteContent);
+  const rawHeroSlides = value.homepage.heroSlides ?? [{
+    id: 'home-hero-1',
+    eyebrow: value.homepage.eyebrow ?? normalized.homepage.eyebrow,
+    headline: value.homepage.headline ?? normalized.homepage.headline,
+    introduction: value.homepage.introduction ?? normalized.homepage.introduction,
+    imageUrl: value.homepage.heroImage ?? normalized.homepage.heroImage,
+    imageAlt: '',
+    primaryCtaLabel: value.homepage.primaryCtaLabel ?? normalized.homepage.primaryCtaLabel,
+    primaryCtaHref: value.homepage.primaryCtaHref ?? normalized.homepage.primaryCtaHref,
+    secondaryCtaLabel: value.homepage.secondaryCtaLabel ?? normalized.homepage.secondaryCtaLabel,
+    secondaryCtaHref: value.homepage.secondaryCtaHref ?? normalized.homepage.secondaryCtaHref,
+  }];
+  if (!Array.isArray(rawHeroSlides) || rawHeroSlides.length < 1 || rawHeroSlides.length > 4) throw new Error('Homepage must contain between 1 and 4 hero slides.');
+  const heroSlides = rawHeroSlides.map(homeHeroSlide);
+  if (new Set(heroSlides.map((slide) => slide.id)).size !== heroSlides.length) throw new Error('Homepage hero slide IDs must be unique.');
   const pagesValue = isRecord(value.pages) ? value.pages : defaultPages;
   const pages: Record<string, EditablePage> = {};
   const pageEntries = Object.entries({ ...defaultPages, ...pagesValue });
@@ -170,14 +205,15 @@ export function validateSiteContent(value: unknown): SiteContent {
       operatingModel: text(value.company.operatingModel ?? '', 'Operating model', 3000),
     },
     homepage: {
-      headline: text(value.homepage.headline, 'Homepage headline', 220, true),
-      introduction: text(value.homepage.introduction, 'Homepage introduction', 1000, true),
-      eyebrow: text(value.homepage.eyebrow ?? '', 'Homepage eyebrow', 120),
-      heroImage: imageReference(value.homepage.heroImage ?? '', 'Homepage hero image'),
-      primaryCtaLabel: text(value.homepage.primaryCtaLabel ?? '', 'Homepage primary button', 100),
-      primaryCtaHref: safePath(text(value.homepage.primaryCtaHref ?? '/services', 'Homepage primary link', 500), 'Homepage primary link'),
-      secondaryCtaLabel: text(value.homepage.secondaryCtaLabel ?? '', 'Homepage secondary button', 100),
-      secondaryCtaHref: safePath(text(value.homepage.secondaryCtaHref ?? '/about', 'Homepage secondary link', 500), 'Homepage secondary link'),
+      headline: heroSlides[0].headline,
+      introduction: heroSlides[0].introduction,
+      eyebrow: heroSlides[0].eyebrow,
+      heroImage: heroSlides[0].imageUrl,
+      primaryCtaLabel: heroSlides[0].primaryCtaLabel,
+      primaryCtaHref: heroSlides[0].primaryCtaHref || '/services',
+      secondaryCtaLabel: heroSlides[0].secondaryCtaLabel,
+      secondaryCtaHref: heroSlides[0].secondaryCtaHref || '/about',
+      heroSlides,
       sections: value.homepage.sections.map(homeSection),
     },
     services,

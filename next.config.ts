@@ -4,6 +4,7 @@ const config: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   poweredByHeader: false,
   images: {
+    qualities: [75, 90],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
