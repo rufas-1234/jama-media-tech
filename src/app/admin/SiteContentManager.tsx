@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FilePlus2, LoaderCircle, Save, Trash2 } from 'lucide-react';
-import { companyDirection, companyOperatingModel, projectCategories } from '@/lib/content';
-import type { HomeSection, Service, SiteContent, TeamMember } from '@/lib/site-content';
+import { projectCategories } from '@/lib/content';
+import type { EditablePage, HomeSection, Service, SiteContent, SiteNavigationItem, TeamMember } from '@/lib/site-content';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
-type EditorArea = 'company' | 'services' | 'team';
+export type EditorArea = 'home' | 'pages' | 'services' | 'team' | 'company' | 'navigation';
 
 const emptyService = (index: number): Service => ({
   slug: '', number: String(index + 1).padStart(2, '0'), short: '', title: '', description: '', introduction: '',
@@ -17,21 +17,22 @@ const emptyService = (index: number): Service => ({
 const emptyTeamMember = (): TeamMember => ({ id: crypto.randomUUID(), name: '', role: '', biography: '', imageUrl: '', linkedin: '', facebook: '', instagram: '', x: '' });
 const emptyHomeSection = (): HomeSection => ({ id: crypto.randomUUID(), eyebrow: '', title: '', body: '', imageUrl: '', enabled: true });
 
-function Field({ label, value, onChange, multiline = false, hint }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean; hint?: string }) {
+function Field({ label, value, onChange, multiline = false, hint, onBlur }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean; hint?: string; onBlur?: () => void }) {
   return (
     <label className="block">
       <span className="form-label">{label}</span>
-      {multiline ? <textarea rows={4} className="form-field" value={value} onChange={(event) => onChange(event.target.value)} /> : <input className="form-field" value={value} onChange={(event) => onChange(event.target.value)} />}
+      {multiline ? <textarea rows={4} className="form-field" value={value} onChange={(event) => onChange(event.target.value)} /> : <input className="form-field" value={value} onChange={(event) => onChange(event.target.value)} onBlur={onBlur} />}
       {hint && <span className="mt-1 block text-xs text-[#56615a]">{hint}</span>}
     </label>
   );
 }
 
-export function SiteContentManager() {
+export function SiteContentManager({ area }: { area: EditorArea }) {
   const router = useRouter();
   const [content, setContent] = useState<SiteContent | null>(null);
   const [storage, setStorage] = useState<'local' | 'tidb' | null>(null);
-  const [area, setArea] = useState<EditorArea>('company');
+  const [selectedPage, setSelectedPage] = useState('about');
+  const [pageSlugDraft, setPageSlugDraft] = useState('about');
   const [serviceIndex, setServiceIndex] = useState(0);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,13 +63,39 @@ export function SiteContentManager() {
   }
 
   useEffect(() => { void loadContent(); }, []);
+  useEffect(() => { setPageSlugDraft(selectedPage); }, [selectedPage]);
 
   function updateCompany(key: keyof SiteContent['company'], value: string) {
     setContent((current) => current ? { ...current, company: { ...current.company, [key]: value } } : current);
   }
 
-  function updateHomepage(key: 'headline' | 'introduction', value: string) {
+  function updateHomepage(key: keyof SiteContent['homepage'], value: string) {
     setContent((current) => current ? { ...current, homepage: { ...current.homepage, [key]: value } } : current);
+  }
+
+  function updatePage(slug: string, patch: Partial<EditablePage>) {
+    setContent((current) => current?.pages[slug] ? { ...current, pages: { ...current.pages, [slug]: { ...current.pages[slug], ...patch } } } : current);
+  }
+
+  function updatePageSection(slug: string, id: string, patch: Partial<HomeSection>) {
+    const page = content?.pages[slug];
+    if (page) updatePage(slug, { sections: page.sections.map((item) => item.id === id ? { ...item, ...patch } : item) });
+  }
+
+  function addPage() {
+    if (!content) return;
+    const slug = `new-page-${Object.keys(content.pages).length}`;
+    setContent({ ...content, pages: { ...content.pages, [slug]: { label: 'New page', eyebrow: '', title: 'New page', introduction: '', imageUrl: '', sections: [] } } });
+    setSelectedPage(slug);
+  }
+
+  function addPageSection(slug: string) {
+    const page = content?.pages[slug];
+    if (page) updatePage(slug, { sections: [...page.sections, emptyHomeSection()] });
+  }
+
+  function updateNavigationItem(id: string, patch: Partial<SiteNavigationItem>) {
+    setContent((current) => current ? { ...current, navigation: { ...current.navigation, items: current.navigation.items.map((item) => item.id === id ? { ...item, ...patch } : item) } } : current);
   }
 
   function updateSection(id: string, patch: Partial<HomeSection>) {
@@ -131,6 +158,9 @@ export function SiteContentManager() {
 
   const selectedService = content.services[serviceIndex];
   const selectedTeamMember = content.teamMembers.find((member) => member.id === teamId);
+  const pageSlugs = Object.keys(content.pages);
+  const activePageSlug = content.pages[selectedPage] ? selectedPage : pageSlugs[0];
+  const activePage = content.pages[activePageSlug];
 
   return (
     <div>
@@ -140,21 +170,15 @@ export function SiteContentManager() {
       {notice && <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
       {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div role="tablist" aria-label="Site content areas" className="flex gap-1 rounded-xl bg-[#e9eee9] p-1">
-          {([
-            ['company', 'Company & Home'], ['services', 'Services'], ['team', 'Team'],
-          ] as const).map(([key, label]) => (
-            <button key={key} type="button" role="tab" aria-selected={area === key} className={`rounded-lg px-4 py-2 text-sm font-medium ${area === key ? 'bg-white text-[#28583e] shadow-sm' : 'text-[#56615a] hover:text-[#172019]'}`} onClick={() => setArea(key)}>{label}</button>
-          ))}
-        </div>
+      <div className="mb-6 flex justify-end">
         <button type="button" disabled={saving} className="btn btn-primary" onClick={() => void saveContent()}>
           {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Saving' : 'Save site content'}
         </button>
       </div>
 
-      {area === 'company' && <div className="space-y-8">
+      {(area === 'company' || area === 'home') && <div className="space-y-8">
+        {area === 'company' && <>
         <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
           <h2 className="mb-5 text-xl text-[#172019]">Company information</h2>
           <div className="grid gap-5 md:grid-cols-2">
@@ -163,25 +187,22 @@ export function SiteContentManager() {
             <Field label="Email" value={content.company.email} onChange={(value) => updateCompany('email', value)} />
             <Field label="Phone" value={content.company.phone} onChange={(value) => updateCompany('phone', value)} />
             <div className="md:col-span-2"><Field label="Company description" value={content.company.description} onChange={(value) => updateCompany('description', value)} multiline /></div>
-            <Field label="Vision" value={content.company.vision} onChange={(value) => updateCompany('vision', value)} multiline />
-            <Field label="Mission" value={content.company.mission} onChange={(value) => updateCompany('mission', value)} multiline />
           </div>
         </section>
+        </>}
 
-        <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
-          <h2 className="text-xl text-[#172019]">About page direction &amp; operating model</h2>
-          <p className="mb-5 mt-2 text-sm leading-6 text-[#56615a]">These statements appear on the public About page. Keep them aligned with the company’s approved strategy and delivery practices.</p>
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Strategic direction" value={content.company.direction ?? companyDirection} onChange={(value) => updateCompany('direction', value)} multiline />
-            <Field label="Operating model" value={content.company.operatingModel ?? companyOperatingModel} onChange={(value) => updateCompany('operatingModel', value)} multiline />
-          </div>
-        </section>
-
+        {area === 'home' && <>
         <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
           <h2 className="mb-5 text-xl text-[#172019]">Homepage hero</h2>
           <div className="grid gap-5 md:grid-cols-2">
+            <Field label="Hero eyebrow" value={content.homepage.eyebrow} onChange={(value) => updateHomepage('eyebrow', value)} />
             <Field label="Headline" value={content.homepage.headline} onChange={(value) => updateHomepage('headline', value)} multiline />
             <Field label="Introduction" value={content.homepage.introduction} onChange={(value) => updateHomepage('introduction', value)} multiline />
+            <Field label="Primary button label" value={content.homepage.primaryCtaLabel} onChange={(value) => updateHomepage('primaryCtaLabel', value)} />
+            <Field label="Primary button link" value={content.homepage.primaryCtaHref} onChange={(value) => updateHomepage('primaryCtaHref', value)} />
+            <Field label="Secondary button label" value={content.homepage.secondaryCtaLabel} onChange={(value) => updateHomepage('secondaryCtaLabel', value)} />
+            <Field label="Secondary button link" value={content.homepage.secondaryCtaHref} onChange={(value) => updateHomepage('secondaryCtaHref', value)} />
+            <ImageUploadField label="Hero image" value={content.homepage.heroImage} onChange={(value) => updateHomepage('heroImage', value)} />
           </div>
         </section>
 
@@ -199,13 +220,92 @@ export function SiteContentManager() {
                   <Field label="Heading" value={section.title} onChange={(value) => updateSection(section.id, { title: value })} />
                   <div className="md:col-span-2"><Field label="Text" value={section.body} onChange={(value) => updateSection(section.id, { body: value })} multiline /></div>
                   <div className="md:col-span-2"><ImageUploadField label="Section image (optional)" value={section.imageUrl} onChange={(value) => updateSection(section.id, { imageUrl: value })} /></div>
+                  <Field label="Button label (optional)" value={section.buttonText ?? ''} onChange={(value) => updateSection(section.id, { buttonText: value })} />
+                  <Field label="Button link (optional)" value={section.buttonHref ?? ''} onChange={(value) => updateSection(section.id, { buttonHref: value })} />
+                </div>
+                <div className="mt-4 space-y-3">
+                  {(section.items ?? []).map((item, itemIndex) => (
+                    <div key={`${section.id}-${itemIndex}`} className="grid gap-3 rounded-lg border border-[#e7ebe7] bg-white p-3 md:grid-cols-2">
+                      <Field label={`Card ${itemIndex + 1} title`} value={item.title} onChange={(value) => updateSection(section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, title: value } : card) })} />
+                      <Field label={`Card ${itemIndex + 1} text`} value={item.body} onChange={(value) => updateSection(section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, body: value } : card) })} multiline />
+                      <div className="md:col-span-2"><ImageUploadField label="Card image (optional)" value={item.imageUrl ?? ''} onChange={(value) => updateSection(section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, imageUrl: value } : card) })} /></div>
+                    </div>
+                  ))}
+                  <button type="button" className="btn btn-secondary" disabled={(section.items?.length ?? 0) >= 12} onClick={() => updateSection(section.id, { items: [...(section.items ?? []), { title: '', body: '' }] })}>Add card</button>
                 </div>
               </div>
             ))}
             {content.homepage.sections.length === 0 && <p className="rounded-xl bg-[#f7f8f5] px-4 py-6 text-sm text-[#56615a]">No custom sections yet.</p>}
           </div>
         </section>
+        </>}
       </div>}
+
+      {area === 'pages' && activePage && <div className="grid items-start gap-6 xl:grid-cols-[minmax(200px,0.65fr)_minmax(0,1.35fr)]">
+        <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-4">
+          <div className="mb-3 flex items-center justify-between"><h2 className="text-lg text-[#172019]">Pages</h2><button type="button" className="rounded-lg p-2 text-[#28583e] hover:bg-[#f1f4f0]" onClick={addPage} aria-label="Add page"><FilePlus2 className="h-4 w-4" /></button></div>
+          <ul className="space-y-1">{pageSlugs.map((slug) => <li key={slug}><button type="button" className={`w-full rounded-lg px-3 py-2 text-left text-sm ${slug === activePageSlug ? 'bg-[#edf2ed] font-semibold text-[#28583e]' : 'text-[#354239] hover:bg-[#f7f8f5]'}`} onClick={() => setSelectedPage(slug)}>{content.pages[slug].label} <span className="text-xs text-[#788179]">/{slug}</span></button></li>)}</ul>
+        </section>
+        <section className="space-y-5 rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Page name" value={activePage.label} onChange={(value) => updatePage(activePageSlug, { label: value })} />
+            <Field label="Page URL slug" value={pageSlugDraft} onChange={setPageSlugDraft} onBlur={() => {
+              const slug = pageSlugDraft.toLowerCase().trim().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '');
+              if (!slug || slug === activePageSlug || content.pages[slug]) {
+                setPageSlugDraft(activePageSlug);
+                return;
+              }
+              const pages = { ...content.pages, [slug]: content.pages[activePageSlug] };
+              delete pages[activePageSlug];
+              const oldPath = `/${activePageSlug}`;
+              const newPath = `/${slug}`;
+              setContent({
+                ...content,
+                homepage: {
+                  ...content.homepage,
+                  primaryCtaHref: content.homepage.primaryCtaHref === oldPath ? newPath : content.homepage.primaryCtaHref,
+                  secondaryCtaHref: content.homepage.secondaryCtaHref === oldPath ? newPath : content.homepage.secondaryCtaHref,
+                  sections: content.homepage.sections.map((section) => section.buttonHref === oldPath ? { ...section, buttonHref: newPath } : section),
+                },
+                pages: Object.fromEntries(Object.entries(pages).map(([pageSlug, page]) => [pageSlug, {
+                  ...page,
+                  sections: page.sections.map((section) => section.buttonHref === oldPath ? { ...section, buttonHref: newPath } : section),
+                }])),
+                navigation: {
+                  ...content.navigation,
+                  ctaHref: content.navigation.ctaHref === oldPath ? newPath : content.navigation.ctaHref,
+                  items: content.navigation.items.map((item) => item.href === oldPath ? { ...item, href: newPath } : item),
+                },
+              });
+              setSelectedPage(slug);
+            }} hint="Changing the URL slug also changes this page's site path." />
+            <Field label="Eyebrow" value={activePage.eyebrow} onChange={(value) => updatePage(activePageSlug, { eyebrow: value })} />
+            <Field label="Heading" value={activePage.title} onChange={(value) => updatePage(activePageSlug, { title: value })} />
+            <div className="md:col-span-2"><Field label="Introduction" value={activePage.introduction} onChange={(value) => updatePage(activePageSlug, { introduction: value })} multiline /></div>
+            <div className="md:col-span-2"><ImageUploadField label="Hero image" value={activePage.imageUrl} onChange={(value) => updatePage(activePageSlug, { imageUrl: value })} /></div>
+          </div>
+          <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold text-[#172019]">Page sections</h3><button type="button" className="btn btn-secondary" disabled={activePage.sections.length >= 24} onClick={() => addPageSection(activePageSlug)}><FilePlus2 className="h-4 w-4" /> Add section</button></div>
+          {activePage.sections.map((section, index) => <div key={section.id} className="rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-4">
+            <div className="mb-3 flex items-center justify-between"><h4 className="font-semibold text-[#172019]">Section {index + 1}</h4><div className="flex items-center gap-3"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={section.enabled} onChange={(event) => updatePageSection(activePageSlug, section.id, { enabled: event.target.checked })} />Visible</label><button type="button" className="rounded-lg p-2 text-red-700 hover:bg-red-50" aria-label={`Remove page section ${index + 1}`} onClick={() => updatePage(activePageSlug, { sections: activePage.sections.filter((item) => item.id !== section.id) })}><Trash2 className="h-4 w-4" /></button></div></div>
+            <div className="grid gap-4 md:grid-cols-2"><Field label="Section label" value={section.eyebrow} onChange={(value) => updatePageSection(activePageSlug, section.id, { eyebrow: value })} /><Field label="Section heading" value={section.title} onChange={(value) => updatePageSection(activePageSlug, section.id, { title: value })} /><div className="md:col-span-2"><Field label="Section text" value={section.body} onChange={(value) => updatePageSection(activePageSlug, section.id, { body: value })} multiline /></div><div className="md:col-span-2"><ImageUploadField label="Section image" value={section.imageUrl} onChange={(value) => updatePageSection(activePageSlug, section.id, { imageUrl: value })} /></div><Field label="Button label (optional)" value={section.buttonText ?? ''} onChange={(value) => updatePageSection(activePageSlug, section.id, { buttonText: value })} /><Field label="Button link (optional)" value={section.buttonHref ?? ''} onChange={(value) => updatePageSection(activePageSlug, section.id, { buttonHref: value })} /></div>
+            {(section.items ?? []).map((item, itemIndex) => <div key={`${section.id}-${itemIndex}`} className="mt-3 grid gap-3 rounded-lg border border-[#e7ebe7] bg-white p-3 md:grid-cols-2"><Field label={`Card ${itemIndex + 1} title`} value={item.title} onChange={(value) => updatePageSection(activePageSlug, section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, title: value } : card) })} /><Field label={`Card ${itemIndex + 1} text`} value={item.body} onChange={(value) => updatePageSection(activePageSlug, section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, body: value } : card) })} multiline /><div className="md:col-span-2"><ImageUploadField label="Card image (optional)" value={item.imageUrl ?? ''} onChange={(value) => updatePageSection(activePageSlug, section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, imageUrl: value } : card) })} /></div></div>)}
+            <button type="button" className="btn btn-secondary mt-3" disabled={(section.items?.length ?? 0) >= 12} onClick={() => updatePageSection(activePageSlug, section.id, { items: [...(section.items ?? []), { title: '', body: '' }] })}>Add card</button>
+          </div>)}
+          {activePageSlug.startsWith('new-page-') && <p className="text-sm text-[#56615a]">Save this page, then add a navigation link using its URL path. Standard pages retain their existing interactive forms and content.</p>}
+        </section>
+      </div>}
+
+      {area === 'navigation' && <section className="space-y-5 rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
+        <div><h2 className="text-xl text-[#172019]">Site navigation</h2><p className="mt-1 text-sm text-[#56615a]">Control the links shown in the public header and the primary call-to-action.</p></div>
+        <div className="space-y-3">{content.navigation.items.map((item, index) => <div key={item.id} className="grid items-end gap-3 rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-4 md:grid-cols-[1fr_1.2fr_auto_auto]">
+          <Field label={`Link ${index + 1} label`} value={item.label} onChange={(value) => updateNavigationItem(item.id, { label: value })} />
+          <Field label="URL" value={item.href} onChange={(value) => updateNavigationItem(item.id, { href: value })} />
+          <label className="flex items-center gap-2 pb-3 text-sm text-[#48534b]"><input type="checkbox" checked={item.enabled} onChange={(event) => updateNavigationItem(item.id, { enabled: event.target.checked })} />Visible</label>
+          <button type="button" className="mb-2 rounded-lg p-2 text-red-700 hover:bg-red-50" aria-label={`Remove navigation link ${index + 1}`} onClick={() => setContent({ ...content, navigation: { ...content.navigation, items: content.navigation.items.filter((link) => link.id !== item.id) } })}><Trash2 className="h-4 w-4" /></button>
+        </div>)}</div>
+        <button type="button" className="btn btn-secondary" disabled={content.navigation.items.length >= 20} onClick={() => setContent({ ...content, navigation: { ...content.navigation, items: [...content.navigation.items, { id: crypto.randomUUID(), label: '', href: '/', enabled: true }] } })}><FilePlus2 className="h-4 w-4" /> Add navigation link</button>
+        <div className="grid gap-4 border-t border-[#e7ebe7] pt-5 md:grid-cols-2"><Field label="Header button label" value={content.navigation.ctaLabel} onChange={(value) => setContent({ ...content, navigation: { ...content.navigation, ctaLabel: value } })} /><Field label="Header button URL" value={content.navigation.ctaHref} onChange={(value) => setContent({ ...content, navigation: { ...content.navigation, ctaHref: value } })} /></div>
+      </section>}
 
       {area === 'services' && <div className="grid items-start gap-6 xl:grid-cols-[minmax(220px,0.65fr)_minmax(0,1.35fr)]">
         <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-4">

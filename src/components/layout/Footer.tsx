@@ -6,9 +6,10 @@ import { BrandLockup } from '@/components/layout/BrandLockup';
 type FooterProps = {
   company: SiteContent['company'];
   services: { name: string; href: string }[];
+  navigation: SiteContent['navigation'];
 };
 
-export function Footer({ company, services }: FooterProps) {
+export function Footer({ company, services, navigation }: FooterProps) {
   return (
     <footer className="border-t border-[#dfe5df] bg-[#f0f3ef] text-[#1b211d]">
       <div className="container py-12">
@@ -28,11 +29,7 @@ export function Footer({ company, services }: FooterProps) {
           <div>
             <h3 className="mb-4 text-lg font-semibold text-[#172019]">Quick Links</h3>
             <ul className="space-y-2 text-sm text-[#48534b]">
-              <li><Link href="/about" className="hover:text-[#28583e] transition-colors">About Us</Link></li>
-              <li><Link href="/leadership" className="hover:text-[#28583e] transition-colors">Leadership &amp; Governance</Link></li>
-              <li><Link href="/projects" className="hover:text-[#28583e] transition-colors">Projects &amp; Impact</Link></li>
-              <li><Link href="/news" className="hover:text-[#28583e] transition-colors">News &amp; Insights</Link></li>
-              <li><Link href="/contact" className="hover:text-[#28583e] transition-colors">Contact Us</Link></li>
+              {navigation.items.filter((item) => item.enabled).map((item) => <li key={item.id}><Link href={item.href} className="hover:text-[#28583e] transition-colors">{item.label}</Link></li>)}
               <li><Link href="/admin/login" className="hover:text-[#28583e] transition-colors">Editorial Login</Link></li>
             </ul>
           </div>
@@ -61,12 +58,12 @@ export function Footer({ company, services }: FooterProps) {
                 <a href={`tel:${company.phone.replaceAll(' ', '')}`} className="transition-colors hover:text-[#28583e]">{company.phone}</a>
               </li>}
             </ul>
-            <Link href="/request-quotation" className="btn btn-primary mt-6 inline-flex">Request a Quotation</Link>
+            <Link href={navigation.ctaHref} className="btn btn-primary mt-6 inline-flex">{navigation.ctaLabel}</Link>
           </div>
         </div>
 
         <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
-          <p className="text-sm text-[#56615a]">© 2026 Jama Tech LTD. All rights reserved.</p>
+          <p className="text-sm text-[#56615a]">© {new Date().getFullYear()} {company.name}. All rights reserved.</p>
           <div className="flex gap-6 text-sm text-[#56615a]">
             <Link href="/privacy-policy" className="hover:text-[#28583e] transition-colors">Privacy Policy</Link>
             <Link href="/terms-conditions" className="hover:text-[#28583e] transition-colors">Terms &amp; Conditions</Link>

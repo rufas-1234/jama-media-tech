@@ -26,9 +26,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${manrope.variable} ${inter.variable}`}>
       <body>
-        <Header companyName={siteContent.company.name} location={siteContent.company.location} services={serviceLinks} />
+        <Header companyName={siteContent.company.name} location={siteContent.company.location} navigation={siteContent.navigation} />
         <main>{children}</main>
-        <Footer company={siteContent.company} services={serviceLinks} />
+        <Footer company={siteContent.company} services={serviceLinks} navigation={siteContent.navigation} />
       </body>
     </html>
   );

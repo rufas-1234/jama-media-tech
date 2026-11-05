@@ -1,19 +1,18 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { getNewsCards } from '@/lib/news-content';
+import { getSiteContent } from '@/lib/site-content';
+import { PageHero, EditableSections } from '@/components/content/EditablePage';
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewsPage() {
   const articles = await getNewsCards();
+  const { pages } = await getSiteContent();
   return (
     <>
-      <section className="page-hero py-20 lg:py-28">
-        <div className="container">
-          <p className="page-kicker">News & insights</p>
-          <h1 className="page-title">Updates, stories and sector insights.</h1>
-        </div>
-      </section>
+      <PageHero page={pages.news} />
+      <EditableSections sections={pages.news.sections} />
 
       <section className="section-surface py-16 lg:py-24">
         <div className="container grid gap-8 md:grid-cols-2 lg:grid-cols-3">

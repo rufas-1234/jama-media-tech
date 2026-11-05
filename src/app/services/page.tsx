@@ -1,42 +1,24 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, CheckCircle2, ClipboardCheck, Compass, Handshake, SearchCheck } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { imageSource } from '@/lib/content';
 import { getSiteContent } from '@/lib/site-content';
+import { EditableSections, PageHero } from '@/components/content/EditablePage';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ServicesPage() {
-  const { services } = await getSiteContent();
-  const steps = [
-    { number: '01', title: 'Understand the need', body: 'Start with the operating context, requirements and intended outcomes.', Icon: SearchCheck },
-    { number: '02', title: 'Shape the response', body: 'Agree a practical scope and the right capabilities for the work.', Icon: Compass },
-    { number: '03', title: 'Coordinate delivery', body: 'Align people, resources and communication around the agreed plan.', Icon: Handshake },
-    { number: '04', title: 'Close out clearly', body: 'Share progress, delivery records and next steps with the partner.', Icon: ClipboardCheck },
-  ];
+  const { services, pages } = await getSiteContent();
 
   return (
     <>
-      <section className="services-hero relative overflow-hidden bg-[#17231d] py-16 text-white sm:py-20 lg:py-28">
-        <div className="container relative z-10 grid items-end gap-8 lg:grid-cols-[1fr_0.7fr]">
-          <div className="max-w-4xl">
-            <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#c5e8ed] backdrop-blur-xl">What we do</p>
-            <h1 className="max-w-4xl text-[clamp(2.6rem,6vw,5.25rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-white">One connected partner.<br />Essential capabilities.</h1>
-          </div>
-          <div className="lg:pb-2">
-            <p className="max-w-xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
-              Practical services across supply, sustainability and technology—shaped around each partner’s operating context.
-            </p>
-            <p className="mt-5 text-sm font-medium text-[#b3e3ed]">{services.length} service areas · South Sudan</p>
-          </div>
-        </div>
-      </section>
+      <PageHero page={pages.services} />
 
       <section className="section-surface py-16 lg:py-24">
         <div className="container">
           <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-3xl">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#28583e]">Our capabilities</p>
-              <h2 className="text-3xl text-[#172019] md:text-4xl">Designed around real operating needs.</h2>
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#28583e]">{pages.services.eyebrow}</p>
+              <h2 className="text-3xl text-[#172019] md:text-4xl">{pages.services.title}</h2>
             </div>
             <Link href="/request-quotation" className="inline-flex items-center gap-2 text-sm font-semibold text-[#28583e] hover:text-[#17231d]">
               Discuss a requirement <ArrowUpRight className="h-4 w-4" />
@@ -76,35 +58,7 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      <section className="bg-[#17231d] py-16 text-white lg:py-24">
-        <div className="container">
-          <div className="max-w-3xl">
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#69d6ec]">A clear way of working</p>
-            <h2 className="text-3xl text-white md:text-4xl">From first conversation to clear delivery.</h2>
-          </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {steps.map(({ number, title, body, Icon }) => (
-              <article key={number} className="service-step rounded-2xl border border-white/10 bg-[#ffffff0f] p-5 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold tracking-[0.2em] text-[#69d6ec]">{number}</span>
-                  <Icon className="h-5 w-5 text-[#a6d6b1]" />
-                </div>
-                <h3 className="mt-7 text-lg text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-white/70">{body}</p>
-              </article>
-            ))}
-          </div>
-          <div className="mt-10 flex flex-col gap-4 rounded-[1.5rem] border border-white/10 bg-white/[0.05] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-            <div>
-              <h3 className="text-xl text-white">Have a specific requirement?</h3>
-              <p className="mt-2 text-sm leading-6 text-white/70">Talk with our team about scope, timing and the right service for your needs.</p>
-            </div>
-            <Link href="/request-quotation" className="btn btn-primary shrink-0 justify-center">
-              Request a quotation <ArrowRight className="h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <EditableSections sections={pages.services.sections} />
     </>
   );
 }

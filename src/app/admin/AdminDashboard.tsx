@@ -4,10 +4,11 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { FilePlus2, LoaderCircle, LogOut, Pencil, Send, Trash2 } from 'lucide-react';
 import { projectCategories } from '@/lib/content';
-import { SiteContentManager } from './SiteContentManager';
+import { SiteContentManager, type EditorArea } from './SiteContentManager';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
 
 type ContentKind = 'news' | 'project';
+type DashboardSection = EditorArea | 'news' | 'projects';
 
 type Post = {
   id: number;
@@ -29,7 +30,7 @@ const emptyDraft = (contentType: ContentKind): Draft => ({ contentType, title: '
 
 export function AdminDashboard() {
   const router = useRouter();
-  const [adminView, setAdminView] = useState<'publishing' | 'site'>('publishing');
+  const [activeSection, setActiveSection] = useState<DashboardSection>('news');
   const [posts, setPosts] = useState<Post[]>([]);
   const [contentType, setContentType] = useState<ContentKind>('news');
   const [draft, setDraft] = useState<Draft>(emptyDraft('news'));
@@ -148,14 +149,11 @@ export function AdminDashboard() {
           <div>
             <p className="text-xs font-semibold uppercase text-[#c5e1cb]">Jama Tech LTD · Editorial workspace</p>
             <h1 className="mt-2 text-3xl text-white md:text-4xl">Content studio</h1>
-            <p className="mt-2 text-sm text-white/80">Manage news, insights, and project stories.</p>
+            <p className="mt-2 text-sm text-white/80">Select an area to manage only that content.</p>
           </div>
           <div className="flex items-center gap-3">
-            {adminView === 'publishing' && <>
-              <button type="button" className="btn btn-secondary" onClick={() => startNew('news')}><FilePlus2 className="h-4 w-4" /> New story</button>
-              <button type="button" className="btn btn-primary" onClick={() => startNew('project')}><FilePlus2 className="h-4 w-4" /> New project</button>
-            </>}
-            <button type="button" className="btn btn-secondary" onClick={() => setAdminView(adminView === 'site' ? 'publishing' : 'site')}>{adminView === 'site' ? 'News & projects' : 'Site content'}</button>
+            {activeSection === 'news' && <button type="button" className="btn btn-primary" onClick={() => startNew('news')}><FilePlus2 className="h-4 w-4" /> New story</button>}
+            {activeSection === 'projects' && <button type="button" className="btn btn-primary" onClick={() => startNew('project')}><FilePlus2 className="h-4 w-4" /> New project</button>}
             <button type="button" aria-label="Sign out" title="Sign out" className="rounded-full border border-[#dfe5df] bg-white p-3 text-[#354239] hover:bg-[#f1f4f0]" onClick={logout}><LogOut className="h-4 w-4" /></button>
           </div>
         </div>
@@ -166,15 +164,24 @@ export function AdminDashboard() {
         {notice && <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
         {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
 
-        {adminView === 'site' ? <SiteContentManager /> : <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <section aria-labelledby="posts-heading" className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 shadow-sm md:p-6">
-            <div role="tablist" aria-label="Content type" className="mb-5 flex gap-2 rounded-xl bg-[#f1f4f0] p-1">
-              {(['news', 'project'] as const).map((type) => (
-                <button key={type} type="button" role="tab" aria-selected={contentType === type} className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium ${contentType === type ? 'bg-white text-[#28583e] shadow-sm' : 'text-[#56615a] hover:text-[#172019]'}`} onClick={() => startNew(type)}>
-                  {type === 'news' ? 'News & insights' : 'Projects'}
-                </button>
+        <div className="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <aside className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-3 lg:sticky lg:top-24">
+            <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[#647067]">Manage content</p>
+            <nav aria-label="Admin content sections" className="space-y-1">
+              {([
+                ['home', 'Home page'], ['pages', 'Pages'], ['services', 'Services'], ['team', 'Team'], ['news', 'News & insights'], ['projects', 'Projects'], ['company', 'Company details'], ['navigation', 'Navigation'],
+              ] as const).map(([key, label]) => (
+                <button key={key} type="button" aria-current={activeSection === key ? 'page' : undefined} className={`w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium ${activeSection === key ? 'bg-[#edf2ed] text-[#28583e]' : 'text-[#48534b] hover:bg-[#f7f8f5]'}`} onClick={() => {
+                  setActiveSection(key);
+                  if (key === 'news') startNew('news');
+                  if (key === 'projects') startNew('project');
+                }}>{label}</button>
               ))}
-            </div>
+            </nav>
+          </aside>
+          <div className="min-w-0">
+        {activeSection !== 'news' && activeSection !== 'projects' ? <SiteContentManager area={activeSection} /> : <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <section aria-labelledby="posts-heading" className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 shadow-sm md:p-6">
             <div className="mb-5 flex items-center justify-between gap-3">
               <h2 id="posts-heading" className="text-xl text-[#172019]">{contentType === 'project' ? 'Projects' : 'Posts'}</h2>
               <span className="text-sm text-[#56615a]">{posts.length}</span>
@@ -253,6 +260,8 @@ export function AdminDashboard() {
             </form>
           </section>
         </div>}
+      </div>
+        </div>
       </div>
     </section>
   );

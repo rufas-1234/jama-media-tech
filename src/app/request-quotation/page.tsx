@@ -1,17 +1,15 @@
 import { ArrowRight } from 'lucide-react';
+import { getSiteContent } from '@/lib/site-content';
+import { EditableSections, PageHero } from '@/components/content/EditablePage';
 
-export default function RequestQuotationPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function RequestQuotationPage() {
+  const { pages } = await getSiteContent();
   return (
     <>
-      <section className="page-hero py-20 lg:py-28">
-        <div className="container">
-          <p className="page-kicker">Request a quotation</p>
-          <h1 className="page-title">Tell us what you need.</h1>
-          <p className="page-intro max-w-2xl">
-            Share a brief overview of your requirements and we will respond with a suitable scope, service recommendation and next steps.
-          </p>
-        </div>
-      </section>
+      <PageHero page={pages['request-quotation']} />
+      <EditableSections sections={pages['request-quotation'].sections} />
 
       <section className="section-surface py-16 lg:py-24">
         <div className="container max-w-4xl">

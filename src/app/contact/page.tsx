@@ -1,21 +1,15 @@
 import { ArrowRight, Mail, MapPin, Phone } from 'lucide-react';
 import { getSiteContent } from '@/lib/site-content';
+import { EditableSections, PageHero } from '@/components/content/EditablePage';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ContactPage() {
-  const { company } = await getSiteContent();
+  const { company, pages } = await getSiteContent();
   return (
     <>
-      <section className="page-hero py-20 lg:py-28">
-        <div className="container">
-          <p className="page-kicker">Contact us</p>
-          <h1 className="page-title">Let’s talk about your next opportunity.</h1>
-          <p className="page-intro max-w-2xl">
-            We welcome partnerships, procurement enquiries, project discussions and technology collaborations across South Sudan and the wider region.
-          </p>
-        </div>
-      </section>
+      <PageHero page={pages.contact} />
+      <EditableSections sections={pages.contact.sections} />
 
       <section className="section-surface py-16 lg:py-24">
         <div className="container grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
@@ -38,16 +32,6 @@ export default async function ContactPage() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-[#d9d0c4] bg-white/80 p-8 shadow-[0_18px_35px_rgba(17,24,26,0.04)]">
-              <h2 className="mb-4 text-2xl text-[#1d1f20]">Business enquiry categories</h2>
-              <ul className="feature-list">
-                <li><span>•</span><span>Supply and logistics enquiries</span></li>
-                <li><span>•</span><span>Waste recycling and environmental projects</span></li>
-                <li><span>•</span><span>ICT and digital solutions</span></li>
-                <li><span>•</span><span>Internet infrastructure and web development</span></li>
-                <li><span>•</span><span>Partnership and collaboration opportunities</span></li>
-              </ul>
-            </div>
           </div>
 
           <div className="rounded-[2rem] border border-[#d9d0c4] bg-white/85 p-8 shadow-[0_18px_50px_rgba(17,24,26,0.06)]">

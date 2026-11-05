@@ -2,20 +2,18 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { projectCategories } from '@/lib/content';
 import { getProjectCards } from '@/lib/project-content';
+import { getSiteContent } from '@/lib/site-content';
+import { PageHero, EditableSections } from '@/components/content/EditablePage';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProjectsPage() {
   const projects = await getProjectCards();
+  const { pages } = await getSiteContent();
   return (
     <>
-      <section className="page-hero py-20 lg:py-28">
-        <div className="container">
-          <p className="page-kicker">Projects & impact</p>
-          <h1 className="page-title">Practical work that creates measurable value.</h1>
-          <p className="page-intro max-w-3xl">Our projects span digital systems, sustainable logistics, recycling initiatives and community-facing solutions across South Sudan.</p>
-        </div>
-      </section>
+      <PageHero page={pages.projects} />
+      <EditableSections sections={pages.projects.sections} />
 
       <section className="bg-[#f4f0ea] py-10">
         <div className="container flex flex-wrap gap-3">
