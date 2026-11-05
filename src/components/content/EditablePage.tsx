@@ -84,9 +84,11 @@ export function TeamMembersSection({ teamMembers, eyebrow = 'Our people', title 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {teamMembers.map((member) => (
             <article key={member.id} className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white text-[#172019]">
-              {member.imageUrl
-                ? <img src={imageSource(member.imageUrl, 800)} alt={`${member.name}, ${member.role}`} className="h-64 w-full object-cover" />
-                : <div aria-hidden="true" className="grid h-64 place-items-center bg-gradient-to-br from-[#28583e] to-[#17231d] text-6xl font-semibold text-white">{member.name.trim().slice(0, 1).toUpperCase()}</div>}
+              <div className="team-member-photo">
+                {member.imageUrl
+                  ? <img src={imageSource(member.imageUrl, 800)} alt={`${member.name}, ${member.role}`} className="team-member-image" />
+                  : <div aria-hidden="true" className="team-member-placeholder">{member.name.trim().slice(0, 1).toUpperCase()}</div>}
+              </div>
               <div className="p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#28583e]">{member.role}</p>
                 <h3 className="mt-2 text-2xl font-semibold">{member.name}</h3>
