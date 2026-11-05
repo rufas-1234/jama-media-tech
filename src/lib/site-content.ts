@@ -235,6 +235,7 @@ export const defaultSiteContent: SiteContent = {
         { title: 'Environmental Stewardship', body: 'Circular economy and responsible resource management to protect local ecosystems.' },
         { title: 'Community Empowerment', body: 'Local opportunity, technical capacity and support for development initiatives.' },
       ]),
+      { ...section('home-contact', 'Let’s start', 'Build something that matters.', 'Start a conversation with our team about a partnership, project or service requirement.'), buttonText: 'Contact our team', buttonHref: '/contact' },
     ],
   },
   services: defaultServices,

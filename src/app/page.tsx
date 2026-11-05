@@ -54,7 +54,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#28583e] py-14 text-white lg:py-20"><div className="container flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">{company.name}</p><h2 className="mt-2 text-3xl font-semibold">Start a conversation with our team.</h2></div><Link href="/contact" className="btn bg-white text-[#172019] hover:bg-[#eef3ee]">Contact us <ArrowRight className="h-5 w-5" /></Link></div></section>
     </>
   );
 }
