@@ -11,7 +11,7 @@ type Publisher = {
   createdAt: string;
 };
 
-const blankPublisher = { name: '', email: '', password: '' };
+const blankPublisher = { name: '', email: '', password: '', confirmPassword: '' };
 
 export function PublisherManager() {
   const [publishers, setPublishers] = useState<Publisher[]>([]);
@@ -42,6 +42,11 @@ export function PublisherManager() {
 
   async function createAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match.');
+      setNotice('');
+      return;
+    }
     setBusy(true);
     setError('');
     setNotice('');
@@ -49,7 +54,7 @@ export function PublisherManager() {
       const response = await fetch('/api/admin/publishers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Publisher account could not be created.');
@@ -100,6 +105,10 @@ export function PublisherManager() {
             <span className="form-label">Temporary password</span>
             <input required type="password" autoComplete="new-password" minLength={6} maxLength={256} className="form-field" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
             <span className="mt-1 block text-xs text-[#56615a]">Use at least 6 characters and share it with the publisher securely.</span>
+          </label>
+          <label className="block">
+            <span className="form-label">Confirm password</span>
+            <input required type="password" autoComplete="new-password" minLength={6} maxLength={256} className="form-field" value={form.confirmPassword} onChange={(event) => setForm({ ...form, confirmPassword: event.target.value })} />
           </label>
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
