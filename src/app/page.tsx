@@ -3,29 +3,33 @@ import { ArrowRight, ArrowUpRight, MapPin } from 'lucide-react';
 import { imageSource } from '@/lib/content';
 import { getNewsCards } from '@/lib/news-content';
 import { getSiteContent } from '@/lib/site-content';
-import { EditableSections } from '@/components/content/EditablePage';
+import { EditableSections, TeamMembersSection } from '@/components/content/EditablePage';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const { company, homepage, pages, services } = await getSiteContent();
+  const { company, homepage, pages, services, teamMembers } = await getSiteContent();
   const articles = (await getNewsCards()).slice(0, 3);
 
   return (
     <>
-      <section className="relative overflow-hidden bg-[#17231d] py-16 text-white sm:py-20 lg:py-28">
-        <div className={`container grid items-center gap-10 ${homepage.heroImage ? 'lg:grid-cols-[1fr_0.85fr]' : ''}`}>
+      <section className="relative isolate flex min-h-[38rem] items-center overflow-hidden bg-[#17231d] py-16 text-white sm:min-h-[42rem] lg:py-24">
+        {homepage.heroImage && <img src={imageSource(homepage.heroImage, 1800)} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" />}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#101812]/95 via-[#101812]/75 to-[#101812]/25" />
+        <div className="container">
           <div className="max-w-3xl">
-            {homepage.eyebrow && <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b3e3ed]">{homepage.eyebrow}</p>}
+            {homepage.eyebrow && <p className="mb-5 inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d3edf1] backdrop-blur">{homepage.eyebrow}</p>}
             <h1 className="whitespace-pre-line text-[clamp(2.7rem,6vw,5.25rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-white">{homepage.headline}</h1>
-            <p className="mt-6 max-w-2xl whitespace-pre-line text-base leading-7 text-white/75 sm:text-lg sm:leading-8">{homepage.introduction}</p>
+            <p className="mt-6 max-w-2xl whitespace-pre-line text-base leading-7 text-white/85 sm:text-lg sm:leading-8">{homepage.introduction}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={homepage.primaryCtaHref} className="btn btn-primary">{homepage.primaryCtaLabel}<ArrowRight className="h-5 w-5" /></Link>
-              <Link href={homepage.secondaryCtaHref} className="btn border border-white/30 bg-white/10 text-white hover:bg-white/20">{homepage.secondaryCtaLabel}</Link>
+              <Link href={homepage.secondaryCtaHref} className="btn border border-white/40 bg-white/10 text-white hover:bg-white/20">{homepage.secondaryCtaLabel}</Link>
             </div>
-            <p className="mt-7 flex items-center gap-2 text-sm text-white/70"><MapPin className="h-4 w-4 text-[#69d6ec]" />{company.location}</p>
+            <p className="mt-7 flex items-center gap-2 text-sm text-white/80"><MapPin className="h-4 w-4 text-[#b3e3ed]" />{company.location}</p>
           </div>
-          {homepage.heroImage && <img src={imageSource(homepage.heroImage, 1200)} alt="" className="max-h-[34rem] min-h-64 w-full rounded-[2rem] object-cover shadow-2xl" />}
+          <div className="mt-12 flex flex-wrap gap-2">
+            {services.map((service) => <span key={service.slug} className="rounded-full border border-white/25 bg-[#101812]/35 px-4 py-2 text-xs font-medium text-white/90 backdrop-blur">{service.short}</span>)}
+          </div>
         </div>
       </section>
 
@@ -46,6 +50,8 @@ export default async function HomePage() {
       </section>
 
       <EditableSections sections={homepage.sections} />
+
+      <TeamMembersSection teamMembers={teamMembers} eyebrow="Our people" title="The team delivering practical change." />
 
       <section className="bg-white py-16 text-[#172019] lg:py-24">
         <div className="container">

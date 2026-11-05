@@ -103,13 +103,23 @@ export const defaultPages: Record<string, EditablePage> = {
     imageUrl: 'photo-1522202176988-66273c2fd55f',
     sections: [
       section('who-we-are', 'Who we are', 'Built around practical action.', 'Our work combines operational reliability with innovation, creating systems that support food security, circular economies, digital transformation and modern infrastructure in South Sudan.', 'photo-1522202176988-66273c2fd55f'),
-      section('vision-mission', 'Our purpose', 'A shared vision and mission.', '', '', [
-        { title: 'Vision', body: 'To be South Sudan’s leading social enterprise in driving sustainable community development, empowering organizations through cutting-edge technology, eco-friendly resource management, and dependable supply chain logistics.' },
-        { title: 'Mission', body: 'To drive sustainable growth and resilience across South Sudan by delivering reliable supply chain solutions, eco-friendly recycling innovations, and robust digital infrastructure—empowering communities, businesses, and development partners to thrive in a connected world.' },
+      section('vision-mission', 'Our purpose', 'A shared vision and mission.', 'We turn a clear purpose into dependable work: strengthen local capacity, solve practical challenges and help communities and organisations thrive.', 'photo-1521737711867-e3b97375f902', [
+        { title: 'Our vision', body: 'To be South Sudan’s leading social enterprise in driving sustainable community development, empowering organizations through cutting-edge technology, eco-friendly resource management, and dependable supply chain logistics.', imageUrl: 'photo-1522202176988-66273c2fd55f' },
+        { title: 'Our mission', body: 'To drive sustainable growth and resilience across South Sudan by delivering reliable supply chain solutions, eco-friendly recycling innovations, and robust digital infrastructure—empowering communities, businesses, and development partners to thrive in a connected world.', imageUrl: 'photo-1593113630400-ea4288922497' },
       ]),
-      section('our-values', 'Our values', 'The principles behind our work.', '', '', values.map(([title, body]) => ({ title, body }))),
-      section('our-direction', 'Our direction', 'A clear strategy for meaningful outcomes.', companyDirection),
-      section('operating-model', 'Operating model', 'How we create value.', companyOperatingModel),
+      section('our-values', 'Our values', 'The principles behind our work.', 'These principles guide how we make decisions, work with partners and deliver for communities.', 'photo-1532996122724-e3c354a0b15b', values.map(([title, body], index) => ({
+        title,
+        body,
+        imageUrl: [
+          'photo-1521737711867-e3b97375f902',
+          'photo-1497366811353-6870744d04b2',
+          'photo-1532996122724-e3c354a0b15b',
+          'photo-1522202176988-66273c2fd55f',
+          'photo-1586528116311-ad8dd3c8310d',
+        ][index],
+      }))),
+      section('our-direction', 'Our direction', 'A clear strategy for meaningful outcomes.', companyDirection, 'photo-1497366811353-6870744d04b2'),
+      section('operating-model', 'Operating model', 'How we create value.', companyOperatingModel, 'photo-1586528116311-ad8dd3c8310d'),
     ],
   },
   sustainability: {
@@ -224,16 +234,16 @@ export const defaultSiteContent: SiteContent = {
     secondaryCtaLabel: 'Discover Jama Tech',
     secondaryCtaHref: '/about',
     sections: [
-      section('home-partnerships', 'Our partnerships', 'Built around the way you operate.', 'Local knowledge and practical capability across humanitarian, government, private sector and community partnerships.', '', [
-        { title: 'Humanitarian & Government', body: 'Compliant procurement, documented distribution and field-ready logistics for agencies delivering at scale.' },
-        { title: 'Private Sector', body: 'Supply chain, recycling and digital infrastructure delivered on clear service levels.' },
-        { title: 'Community & Local Partners', body: 'Local collection networks, skills training and shared-value programmes that keep benefit in the community.' },
+      section('home-partnerships', 'Our partnerships', 'Built around the way you operate.', 'Local knowledge and practical capability across humanitarian, government, private sector and community partnerships.', 'photo-1521737711867-e3b97375f902', [
+        { title: 'Humanitarian & Government', body: 'Compliant procurement, documented distribution and field-ready logistics for agencies delivering at scale.', imageUrl: 'photo-1593113630400-ea4288922497' },
+        { title: 'Private Sector', body: 'Supply chain, recycling and digital infrastructure delivered on clear service levels.', imageUrl: 'photo-1497366811353-6870744d04b2' },
+        { title: 'Community & Local Partners', body: 'Local collection networks, skills training and shared-value programmes that keep benefit in the community.', imageUrl: 'photo-1532996122724-e3c354a0b15b' },
       ]),
       section('home-delivery', 'How we work', 'From scoped assessment to documented delivery.', 'Each engagement starts with a scoped assessment and ends with clear, auditable delivery.\n\nOur team brings together procurement, field logistics, digital infrastructure and recycling expertise to meet the requirements of each partner.', 'photo-1593113630400-ea4288922497'),
-      section('home-approach', 'The Jama Tech approach', 'A more thoughtful way to grow.', '', '', [
-        { title: 'Integrity & Transparency', body: 'Clear accountability, ethical standards and honest communication across every partnership.' },
-        { title: 'Environmental Stewardship', body: 'Circular economy and responsible resource management to protect local ecosystems.' },
-        { title: 'Community Empowerment', body: 'Local opportunity, technical capacity and support for development initiatives.' },
+      section('home-approach', 'The Jama Tech approach', 'A more thoughtful way to grow.', 'A clear, accountable process keeps every engagement grounded in real needs and focused on lasting results.', 'photo-1522202176988-66273c2fd55f', [
+        { title: 'Integrity & Transparency', body: 'Clear accountability, ethical standards and honest communication across every partnership.', imageUrl: 'photo-1521737711867-e3b97375f902' },
+        { title: 'Environmental Stewardship', body: 'Circular economy and responsible resource management to protect local ecosystems.', imageUrl: 'photo-1532996122724-e3c354a0b15b' },
+        { title: 'Community Empowerment', body: 'Local opportunity, technical capacity and support for development initiatives.', imageUrl: 'photo-1593113630400-ea4288922497' },
       ]),
       { ...section('home-contact', 'Let’s start', 'Build something that matters.', 'Start a conversation with our team about a partnership, project or service requirement.'), buttonText: 'Contact our team', buttonHref: '/contact' },
     ],
