@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
 
 const cookieName = 'jama_tech_admin';
-const sessionLifetime = 60 * 60 * 8;
+const sessionLifetime = 60 * 60 * 24 * 30;
 
 function safeEqual(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
