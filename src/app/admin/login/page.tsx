@@ -15,7 +15,7 @@ export default async function AdminLoginPage() {
           <Link href="/" className="text-sm font-semibold text-[#28583e] hover:underline">Jama Tech LTD</Link>
           <p className="mt-8 text-xs font-semibold uppercase text-[#28583e]">Editorial workspace</p>
           <h1 className="mt-2 text-3xl text-[#172019] md:text-4xl">Sign in</h1>
-          <p className="mb-8 mt-3 text-sm leading-6 text-[#56615a]">Manage news, blog posts, and insights published on the site.</p>
+          <p className="mb-8 mt-3 text-sm leading-6 text-[#56615a]">Admins and publishers can sign in to manage the site. Publisher accounts use their email address as the username.</p>
           {adminAuthConfigured() ? (
             <AdminLoginForm />
           ) : (

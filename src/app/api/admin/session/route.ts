@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminAuthConfigured, clearAdminSession, hasAdminSession, isSameOriginRequest, setAdminSession, validateAdminCredentials } from '@/lib/admin-auth';
+import { adminAuthConfigured, authenticateAdmin, clearAdminSession, hasAdminSession, isSameOriginRequest, setAdminSession } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,13 +24,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Enter a username and password.' }, { status: 400, headers: noStoreHeaders() });
   }
 
-  const username = typeof body.username === 'string' ? body.username : '';
+  const username = typeof body.username === 'string' ? body.username.trim() : '';
   const password = typeof body.password === 'string' ? body.password : '';
-  if (!validateAdminCredentials(username, password)) {
+  const principal = await authenticateAdmin(username, password);
+  if (!principal) {
     return NextResponse.json({ error: 'The username or password is incorrect.' }, { status: 401, headers: noStoreHeaders() });
   }
 
-  await setAdminSession();
+  await setAdminSession(principal);
   return NextResponse.json({ authenticated: true }, { headers: noStoreHeaders() });
 }
 

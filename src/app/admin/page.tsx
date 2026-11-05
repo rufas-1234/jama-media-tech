@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation';
 import { AdminDashboard } from './AdminDashboard';
-import { adminAuthConfigured, hasAdminSession } from '@/lib/admin-auth';
+import { adminAuthConfigured, getAdminSession } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
-  if (!adminAuthConfigured() || !(await hasAdminSession())) redirect('/admin/login');
-  return <AdminDashboard />;
+  const session = await getAdminSession();
+  if (!adminAuthConfigured() || !session) redirect('/admin/login');
+  return <AdminDashboard role={session.role} username={session.username} />;
 }

@@ -11,7 +11,8 @@ Without TiDB credentials, development uses `data/news-posts.json` and `data/site
 1. Create a TiDB Cloud cluster and database. Create an application user with access limited to this database.
 2. Select the database in the TiDB SQL editor and run [`db/schema.sql`](./db/schema.sql).
 3. If this database already has the `posts` table, run [`db/migrations/002-post-gallery-images.sql`](./db/migrations/002-post-gallery-images.sql) once to enable multiple images per news story or project. New databases already include this column in `schema.sql`.
-4. Configure the following server-only environment variables:
+4. If this database already exists, run [`db/migrations/003-admin-publishers.sql`](./db/migrations/003-admin-publishers.sql) once to enable publisher accounts. New databases already include this table in `schema.sql`.
+5. Configure the following server-only environment variables:
    - `TIDB_HOST`: cluster endpoint hostname.
    - `TIDB_PORT`: cluster port, normally `4000`.
    - `TIDB_USER`: application username.
@@ -42,4 +43,4 @@ The application no longer calls WordPress. Existing WordPress posts and site set
 
 ## Verify
 
-After applying the schema and setting Vercel variables, deploy and sign in at `/admin/login`. Verify editing site content, publishing news/projects, and uploading an image. Do not rely on local JSON or `public/uploads` for production data.
+After applying the schema and setting Vercel variables, deploy and sign in at `/admin/login`. The configured admin can create publisher accounts from the Publishers dashboard section. Publishers can access all content editing, publishing, and image uploads, but cannot create or remove accounts. Passwords are stored as scrypt hashes; deleting an account immediately revokes its active access. Verify editing site content, publishing news/projects, and uploading an image. Do not rely on local JSON or `public/uploads` for production data.

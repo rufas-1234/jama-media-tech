@@ -22,3 +22,15 @@ CREATE TABLE IF NOT EXISTS posts (
   UNIQUE KEY posts_content_type_slug (content_type, slug),
   KEY posts_public_listing (content_type, status, `date`)
 );
+
+CREATE TABLE IF NOT EXISTS admin_publishers (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(254) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  status ENUM('active', 'disabled') NOT NULL DEFAULT 'active',
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+    ON UPDATE CURRENT_TIMESTAMP(3),
+  UNIQUE KEY admin_publishers_email (email)
+);
