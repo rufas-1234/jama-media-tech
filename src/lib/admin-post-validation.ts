@@ -14,7 +14,9 @@ export function validateDraft(value: unknown): { draft: PostDraft } | { error: s
   const contentType = body.contentType === 'project' ? 'project' : 'news';
   const category = typeof body.category === 'string' ? body.category.trim() : '';
   const location = typeof body.location === 'string' ? body.location.trim() : '';
-  const imageUrl = typeof body.imageUrl === 'string' ? body.imageUrl.trim() : '';
+  const submittedImageUrls = Array.isArray(body.imageUrls) && body.imageUrls.length > 0
+    ? body.imageUrls
+    : typeof body.imageUrl === 'string' && body.imageUrl.trim() ? [body.imageUrl] : [];
   const status = body.status === 'publish' ? 'publish' : body.status === 'draft' ? 'draft' : null;
   const requestedSlug = typeof body.slug === 'string' ? body.slug.trim() : '';
   const slug = slugify(requestedSlug || title);
@@ -27,7 +29,16 @@ export function validateDraft(value: unknown): { draft: PostDraft } | { error: s
   if (contentType === 'project' && !category) return { error: 'Choose a project category.' };
   if (contentType === 'project' && !location) return { error: 'Add the project location.' };
   if (category.length > 100 || location.length > 160) return { error: 'Project category or location is too long.' };
-  const isLocalUpload = imageUrl.startsWith('/uploads/') && !imageUrl.includes('..');
-  if (imageUrl && (imageUrl.length > 2000 || (!isLocalUpload && !/^https?:\/\//i.test(imageUrl)))) return { error: 'Cover image must be an uploaded image or an HTTP/HTTPS URL.' };
-  return { draft: { title, slug, excerpt, content, status, contentType, category, location, imageUrl } };
+  if (submittedImageUrls.some((value) => typeof value !== 'string')) return { error: 'Each post image must be a URL.' };
+  const imageValues = submittedImageUrls.filter((value): value is string => typeof value === 'string' && value.trim() !== '');
+  if (imageValues.length > 12) return { error: 'A post can contain no more than 12 images.' };
+  const imageUrls: string[] = [];
+  for (const [index, value] of imageValues.entries()) {
+    const imageUrl = value.trim();
+    const isLocalUpload = imageUrl.startsWith('/uploads/') && !imageUrl.includes('..');
+    if (!imageUrl || imageUrl.length > 2000 || (!isLocalUpload && !/^https?:\/\//i.test(imageUrl))) return { error: `Image ${index + 1} must be an uploaded image or an HTTP/HTTPS URL.` };
+    imageUrls.push(imageUrl);
+  }
+  const imageUrl = imageUrls[0] ?? '';
+  return { draft: { title, slug, excerpt, content, status, contentType, category, location, imageUrl, imageUrls } };
 }

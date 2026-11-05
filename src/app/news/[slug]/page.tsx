@@ -20,6 +20,7 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
     content: fallbackArticle!.content,
     date: fallbackArticle!.date,
     imageUrl: fallbackArticle!.image,
+    imageUrls: fallbackArticle!.images,
     category: 'News & insights',
   };
   const date = cmsArticle?.date
@@ -47,6 +48,14 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
           <div className="whitespace-pre-line text-base leading-8 text-[#48534b] sm:text-lg">{article.content}</div>
         </div>
       </section>
+      {article.imageUrls.length > 1 && <section className="container mt-12">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-5 text-2xl font-semibold text-[#172019]">Story gallery</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {article.imageUrls.slice(1).map((image, index) => <img key={`${image}-${index}`} src={imageSource(image, 1200)} alt={`${article.title} — image ${index + 2}`} className="aspect-[4/3] w-full rounded-2xl object-cover" />)}
+          </div>
+        </div>
+      </section>}
     </article>
   );
 }

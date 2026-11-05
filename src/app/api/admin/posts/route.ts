@@ -4,6 +4,8 @@ import { hasAdminSession, isSameOriginRequest } from '@/lib/admin-auth';
 import { createAdminPost, listAdminPosts, postStorageMode } from '@/lib/admin-posts';
 import { validateDraft } from '@/lib/admin-post-validation';
 import type { ContentKind } from '@/lib/local-news-store';
+import { fallbackProjects } from '@/lib/project-content';
+import { getAdminSiteContent } from '@/lib/site-content';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,7 +29,12 @@ export async function GET(request: Request) {
   if (!(await hasAdminSession())) return NextResponse.json({ error: 'Sign in is required.' }, { status: 401, headers: noStore });
   try {
     const contentType = requestedType(request);
-    return NextResponse.json({ posts: await listAdminPosts(contentType), storage: postStorageMode() }, { headers: noStore });
+    const posts = await listAdminPosts(contentType);
+    const projectsInitialized = contentType === 'project' ? (await getAdminSiteContent()).projectsInitialized : true;
+    const importableProjectCount = contentType === 'project' && !projectsInitialized
+      ? fallbackProjects.filter((project) => !posts.some((post) => post.slug === project.slug && post.status === 'publish')).length
+      : 0;
+    return NextResponse.json({ posts, importableProjectCount, storage: postStorageMode() }, { headers: noStore });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Posts could not be loaded.';
     return NextResponse.json({ error: message }, { status: 503, headers: noStore });

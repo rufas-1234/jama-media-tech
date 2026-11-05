@@ -34,6 +34,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <div className="mt-5 whitespace-pre-line text-base leading-8 text-[#48534b] sm:text-lg">{project.content}</div>
         </div>
       </section>
+      {project.images.length > 1 && <section className="container mt-12">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-5 text-2xl font-semibold text-[#172019]">Project gallery</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {project.images.slice(1).map((image, index) => <img key={`${image}-${index}`} src={imageSource(image, 1200)} alt={`${project.title} — image ${index + 2}`} className="aspect-[4/3] w-full rounded-2xl object-cover" />)}
+          </div>
+        </div>
+      </section>}
     </article>
   );
 }

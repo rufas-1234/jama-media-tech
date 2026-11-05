@@ -16,6 +16,7 @@ export type ContentItem = {
   category: string;
   location: string;
   imageUrl: string;
+  imageUrls: string[];
 };
 export type ContentResult = { items: ContentItem[]; available: boolean };
 
@@ -31,6 +32,7 @@ function postToContentItem(post: ManagedPost): ContentItem {
     category: post.category,
     location: post.location,
     imageUrl: post.imageUrl,
+    imageUrls: post.imageUrls,
   };
 }
 

@@ -218,6 +218,7 @@ export function validateSiteContent(value: unknown): SiteContent {
     },
     services,
     teamMembers: value.teamMembers.map(teamMember),
+    projectsInitialized: value.projectsInitialized === true,
     pages,
     navigation,
   };

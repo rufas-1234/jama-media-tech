@@ -17,6 +17,7 @@ type PostRow = RowDataPacket & {
   category: string;
   location: string;
   image_url: string;
+  gallery_images: string | string[] | null;
   date: Date | string | null;
   modified: Date | string;
 };
@@ -31,6 +32,17 @@ function toIsoDate(value: Date | string | null) {
 function toManagedPost(row: PostRow): ManagedPost {
   const id = Number(row.id);
   if (!Number.isSafeInteger(id) || id < 1) throw new Error('TiDB returned an invalid post ID.');
+  let galleryImages: string[] = [];
+  if (Array.isArray(row.gallery_images)) galleryImages = row.gallery_images.filter((image): image is string => typeof image === 'string');
+  else if (typeof row.gallery_images === 'string' && row.gallery_images) {
+    try {
+      const parsed: unknown = JSON.parse(row.gallery_images);
+      if (Array.isArray(parsed)) galleryImages = parsed.filter((image): image is string => typeof image === 'string');
+    } catch (error) {
+      console.error(`TiDB returned invalid gallery images for post ${id}.`, error);
+    }
+  }
+  const imageUrls = [...new Set([row.image_url, ...galleryImages].filter(Boolean))];
   return {
     id,
     contentType: row.content_type,
@@ -41,13 +53,14 @@ function toManagedPost(row: PostRow): ManagedPost {
     status: row.status,
     category: row.category,
     location: row.location,
-    imageUrl: row.image_url,
+    imageUrl: imageUrls[0] ?? '',
+    imageUrls,
     date: toIsoDate(row.date),
     modified: toIsoDate(row.modified),
   };
 }
 
-const postColumns = '`id`, `content_type`, `title`, `slug`, `excerpt`, `content`, `status`, `category`, `location`, `image_url`, `date`, `modified`';
+const postColumns = '`id`, `content_type`, `title`, `slug`, `excerpt`, `content`, `status`, `category`, `location`, `image_url`, `gallery_images`, `date`, `modified`';
 
 export async function getPublishedTiDBPosts(contentType: ContentKind) {
   const [rows] = await getTiDBPool().execute<PostRow[]>(
@@ -77,9 +90,9 @@ export async function createTiDBPost(draft: PostDraft) {
   const now = new Date();
   const publishedAt = draft.status === 'publish' ? now : null;
   const [result] = await getTiDBPool().execute<ResultSetHeader>(
-    `INSERT INTO posts (content_type, title, slug, excerpt, content, status, category, location, image_url, \`date\`, modified)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [draft.contentType, draft.title, draft.slug, draft.excerpt, draft.content, draft.status, draft.category, draft.location, draft.imageUrl, publishedAt, now],
+    `INSERT INTO posts (content_type, title, slug, excerpt, content, status, category, location, image_url, gallery_images, \`date\`, modified)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [draft.contentType, draft.title, draft.slug, draft.excerpt, draft.content, draft.status, draft.category, draft.location, draft.imageUrl, JSON.stringify(draft.imageUrls), publishedAt, now],
   );
   const id = Number(result.insertId);
   if (!Number.isSafeInteger(id) || id < 1) throw new Error('TiDB did not return a valid post ID.');
@@ -89,10 +102,10 @@ export async function createTiDBPost(draft: PostDraft) {
 export async function updateTiDBPost(id: number, draft: PostDraft) {
   const now = new Date();
   await getTiDBPool().execute(
-    `UPDATE posts SET title = ?, slug = ?, excerpt = ?, content = ?, status = ?, category = ?, location = ?, image_url = ?,
+    `UPDATE posts SET title = ?, slug = ?, excerpt = ?, content = ?, status = ?, category = ?, location = ?, image_url = ?, gallery_images = ?,
      \`date\` = IF(? = 'publish', COALESCE(\`date\`, ?), NULL), modified = ?
      WHERE id = ? AND content_type = ?`,
-    [draft.title, draft.slug, draft.excerpt, draft.content, draft.status, draft.category, draft.location, draft.imageUrl, draft.status, now, now, id, draft.contentType],
+    [draft.title, draft.slug, draft.excerpt, draft.content, draft.status, draft.category, draft.location, draft.imageUrl, JSON.stringify(draft.imageUrls), draft.status, now, now, id, draft.contentType],
   );
   const [rows] = await getTiDBPool().execute<PostRow[]>(
     `SELECT ${postColumns} FROM posts WHERE id = ? AND content_type = ? LIMIT 1`,

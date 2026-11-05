@@ -21,17 +21,40 @@ type Post = {
   category: string;
   location: string;
   imageUrl: string;
+  imageUrls: string[];
   date: string;
   modified: string;
 };
 
-type Draft = Pick<Post, 'contentType' | 'title' | 'slug' | 'excerpt' | 'content' | 'status' | 'category' | 'location' | 'imageUrl'>;
-const emptyDraft = (contentType: ContentKind): Draft => ({ contentType, title: '', slug: '', excerpt: '', content: '', status: 'draft', category: '', location: '', imageUrl: '' });
+type Draft = Pick<Post, 'contentType' | 'title' | 'slug' | 'excerpt' | 'content' | 'status' | 'category' | 'location' | 'imageUrl' | 'imageUrls'>;
+const emptyDraft = (contentType: ContentKind): Draft => ({ contentType, title: '', slug: '', excerpt: '', content: '', status: 'draft', category: '', location: '', imageUrl: '', imageUrls: [] });
+
+function ImageGalleryField({ images, onChange }: { images: string[]; onChange: (images: string[]) => void }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div><h3 className="text-sm font-semibold text-[#172019]">Post images</h3><p className="mt-1 text-xs text-[#56615a]">The first image is used as the cover. Add up to 12 images.</p></div>
+        <button type="button" className="btn btn-secondary" disabled={images.length >= 12} onClick={() => onChange([...images, ''])}><FilePlus2 className="h-4 w-4" /> Add image</button>
+      </div>
+      {images.map((image, index) => <div key={`post-image-${index}`} className="rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-3">
+        <ImageUploadField
+          label={`${index === 0 ? 'Cover image' : `Gallery image ${index + 1}`}${index === 0 ? ' (optional)' : ''}`}
+          value={image}
+          hint="Upload an image or paste its URL. JPEG, PNG, WebP or GIF; maximum 5 MB."
+          onChange={(value) => onChange(images.map((item, itemIndex) => itemIndex === index ? value : item))}
+        />
+        {images.length > 1 && <button type="button" className="mt-2 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50" onClick={() => onChange(images.filter((_, itemIndex) => itemIndex !== index))}><Trash2 className="h-3.5 w-3.5" /> Remove image</button>}
+      </div>)}
+      {!images.length && <p className="rounded-xl border border-dashed border-[#d5ddd5] px-4 py-5 text-sm text-[#647067]">No images added yet.</p>}
+    </div>
+  );
+}
 
 export function AdminDashboard() {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState<DashboardSection>('news');
   const [posts, setPosts] = useState<Post[]>([]);
+  const [importableProjectCount, setImportableProjectCount] = useState(0);
   const [contentType, setContentType] = useState<ContentKind>('news');
   const [draft, setDraft] = useState<Draft>(emptyDraft('news'));
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -52,6 +75,7 @@ export function AdminDashboard() {
       }
       if (!response.ok) throw new Error(result.error || `${type === 'project' ? 'Projects' : 'Posts'} could not be loaded.`);
       setPosts(result.posts);
+      setImportableProjectCount(result.importableProjectCount ?? 0);
       setStorage(result.storage);
       setError('');
     } catch (reason) {
@@ -76,10 +100,32 @@ export function AdminDashboard() {
   function editPost(post: Post) {
     setContentType(post.contentType);
     setEditingId(post.id);
-    setDraft({ contentType: post.contentType, title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content, status: post.status, category: post.category, location: post.location, imageUrl: post.imageUrl });
+    const imageUrls = post.imageUrls?.length ? post.imageUrls : post.imageUrl ? [post.imageUrl] : [];
+    setDraft({ contentType: post.contentType, title: post.title, slug: post.slug, excerpt: post.excerpt, content: post.content, status: post.status, category: post.category, location: post.location, imageUrl: imageUrls[0] ?? '', imageUrls });
     setNotice('');
     setError('');
     document.getElementById('post-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function importSiteProjects() {
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const response = await fetch('/api/admin/posts/import-site-projects', { method: 'POST' });
+      const result = await response.json();
+      if (response.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
+      if (!response.ok) throw new Error(result.error || 'Site projects could not be imported.');
+      setNotice(result.imported ? `${result.imported} existing site projects are now editable here.` : 'All existing site projects are already editable here.');
+      await loadPosts('project');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Site projects could not be imported.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function savePost(event: FormEvent<HTMLFormElement>) {
@@ -102,7 +148,7 @@ export function AdminDashboard() {
       if (!response.ok) throw new Error(result.error || 'Post could not be saved.');
       setNotice(draft.status === 'publish' ? 'Post published.' : 'Draft saved.');
       setEditingId(result.post.id);
-      setDraft({ contentType: result.post.contentType, title: result.post.title, slug: result.post.slug, excerpt: result.post.excerpt, content: result.post.content, status: result.post.status, category: result.post.category, location: result.post.location, imageUrl: result.post.imageUrl });
+      setDraft({ contentType: result.post.contentType, title: result.post.title, slug: result.post.slug, excerpt: result.post.excerpt, content: result.post.content, status: result.post.status, category: result.post.category, location: result.post.location, imageUrl: result.post.imageUrl, imageUrls: result.post.imageUrls ?? (result.post.imageUrl ? [result.post.imageUrl] : []) });
       await loadPosts(draft.contentType);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Post could not be saved.');
@@ -184,8 +230,9 @@ export function AdminDashboard() {
           <section aria-labelledby="posts-heading" className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 shadow-sm md:p-6">
             <div className="mb-5 flex items-center justify-between gap-3">
               <h2 id="posts-heading" className="text-xl text-[#172019]">{contentType === 'project' ? 'Projects' : 'Posts'}</h2>
-              <span className="text-sm text-[#56615a]">{posts.length}</span>
+              <div className="flex items-center gap-3"><span className="text-sm text-[#56615a]">{posts.length}</span>{contentType === 'project' && importableProjectCount > 0 && <button type="button" disabled={busy} className="btn btn-secondary !px-3 !py-2 text-xs" onClick={() => void importSiteProjects()}>Import {importableProjectCount} site projects</button>}</div>
             </div>
+            {contentType === 'project' && importableProjectCount > 0 && <p className="mb-4 rounded-lg bg-[#f7f8f5] p-3 text-xs leading-5 text-[#56615a]">These visible sample projects are not saved as editable records yet. Import them to manage, update or delete them here.</p>}
             {loading ? <p className="py-8 text-sm text-[#56615a]">Loading posts…</p> : posts.length === 0 ? <p className="py-8 text-sm text-[#56615a]">{contentType === 'project' ? 'No projects yet. Create your first project.' : 'No posts yet. Create your first story.'}</p> : (
               <ul className="divide-y divide-[#e7ebe7]">
                 {posts.map((post) => (
@@ -239,7 +286,7 @@ export function AdminDashboard() {
                 <span className="form-label">Category (optional)</span>
                 <input maxLength={100} className="form-field" value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value })} placeholder="News, Community, Technology…" />
               </label>}
-              <ImageUploadField label="Cover image (optional)" value={draft.imageUrl} onChange={(imageUrl) => setDraft({ ...draft, imageUrl })} />
+              <ImageGalleryField images={draft.imageUrls} onChange={(imageUrls) => setDraft({ ...draft, imageUrls, imageUrl: imageUrls.find(Boolean) ?? '' })} />
               <label className="block">
                 <span className="form-label">{contentType === 'project' ? 'Project details' : 'Article body'}</span>
                 <textarea required rows={10} maxLength={50000} className="form-field" value={draft.content} onChange={(event) => setDraft({ ...draft, content: event.target.value })} placeholder={contentType === 'project' ? 'Describe the work and outcomes. Separate paragraphs with a blank line.' : 'Write your article. Separate paragraphs with a blank line.'} />

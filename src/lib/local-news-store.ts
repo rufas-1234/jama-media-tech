@@ -15,6 +15,7 @@ export type PostDraft = {
   category: string;
   location: string;
   imageUrl: string;
+  imageUrls: string[];
 };
 
 export type ManagedPost = PostDraft & {
@@ -49,6 +50,7 @@ async function readStore(): Promise<ManagedPost[]> {
         category: typeof post.category === 'string' ? post.category : '',
         location: typeof post.location === 'string' ? post.location : '',
         imageUrl: typeof post.imageUrl === 'string' ? post.imageUrl : '',
+        imageUrls: Array.isArray(post.imageUrls) ? post.imageUrls.filter((image): image is string => typeof image === 'string') : typeof post.imageUrl === 'string' && post.imageUrl ? [post.imageUrl] : [],
       }];
     });
   } catch (error) {

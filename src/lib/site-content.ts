@@ -95,6 +95,7 @@ export type SiteContent = {
   };
   services: Service[];
   teamMembers: TeamMember[];
+  projectsInitialized: boolean;
   pages: Record<string, EditablePage>;
   navigation: SiteNavigation;
 };
@@ -276,6 +277,7 @@ export const defaultSiteContent: SiteContent = {
   },
   services: defaultServices,
   teamMembers: [],
+  projectsInitialized: false,
   pages: defaultPages,
   navigation: {
     items: [
@@ -361,6 +363,7 @@ export function normalizeSiteContent(value: SiteContent): SiteContent {
     homepage: { ...defaultHomepage, ...savedHomepage, heroSlides, sections: mergeSections(defaultHomepage.sections, savedHomepage?.sections ?? []) },
     services: value.services?.length ? value.services : cloneDefaults().services,
     teamMembers: value.teamMembers ?? [],
+    projectsInitialized: value.projectsInitialized === true,
     pages: { ...defaultPages, ...value.pages },
     navigation: {
       ...cloneDefaults().navigation,

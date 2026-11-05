@@ -10,7 +10,8 @@ Without TiDB credentials, development uses `data/news-posts.json` and `data/site
 
 1. Create a TiDB Cloud cluster and database. Create an application user with access limited to this database.
 2. Select the database in the TiDB SQL editor and run [`db/schema.sql`](./db/schema.sql).
-3. Configure the following server-only environment variables:
+3. If this database already has the `posts` table, run [`db/migrations/002-post-gallery-images.sql`](./db/migrations/002-post-gallery-images.sql) once to enable multiple images per news story or project. New databases already include this column in `schema.sql`.
+4. Configure the following server-only environment variables:
    - `TIDB_HOST`: cluster endpoint hostname.
    - `TIDB_PORT`: cluster port, normally `4000`.
    - `TIDB_USER`: application username.

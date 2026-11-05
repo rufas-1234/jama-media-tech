@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS posts (
   category VARCHAR(180) NOT NULL DEFAULT '',
   location VARCHAR(180) NOT NULL DEFAULT '',
   image_url VARCHAR(2048) NOT NULL DEFAULT '',
+  gallery_images JSON NULL,
   `date` DATETIME(3) NULL,
   modified DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   UNIQUE KEY posts_content_type_slug (content_type, slug),
