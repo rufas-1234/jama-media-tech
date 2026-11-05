@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   if (name.length < 2 || name.length > 120) return NextResponse.json({ error: 'Name must be between 2 and 120 characters.' }, { status: 400, headers: noStore });
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400, headers: noStore });
   if (email === process.env.ADMIN_USERNAME?.trim().toLowerCase()) return NextResponse.json({ error: 'This email is already reserved for the primary admin account.' }, { status: 409, headers: noStore });
-  if (password.length < 12 || password.length > 256) return NextResponse.json({ error: 'Password must be between 12 and 256 characters.' }, { status: 400, headers: noStore });
+  if (password.length < 6 || password.length > 256) return NextResponse.json({ error: 'Password must be between 6 and 256 characters.' }, { status: 400, headers: noStore });
 
   try {
     const publisher = await createPublisher(name, email, password);

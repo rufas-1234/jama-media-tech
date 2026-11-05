@@ -98,8 +98,8 @@ export function PublisherManager() {
           </label>
           <label className="block">
             <span className="form-label">Temporary password</span>
-            <input required type="password" autoComplete="new-password" minLength={12} maxLength={256} className="form-field" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
-            <span className="mt-1 block text-xs text-[#56615a]">Use at least 12 characters and share it with the publisher securely.</span>
+            <input required type="password" autoComplete="new-password" minLength={6} maxLength={256} className="form-field" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+            <span className="mt-1 block text-xs text-[#56615a]">Use at least 6 characters and share it with the publisher securely.</span>
           </label>
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
