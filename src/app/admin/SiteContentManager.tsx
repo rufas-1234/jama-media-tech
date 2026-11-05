@@ -15,7 +15,7 @@ const emptyService = (index: number): Service => ({
 });
 
 const emptyTeamMember = (): TeamMember => ({ id: crypto.randomUUID(), name: '', role: '', biography: '', imageUrl: '', linkedin: '', facebook: '', instagram: '', x: '' });
-const emptyHomeSection = (): HomeSection => ({ id: crypto.randomUUID(), eyebrow: '', title: '', body: '', imageUrl: '', enabled: true });
+const emptyHomeSection = (): HomeSection => ({ id: crypto.randomUUID(), eyebrow: '', title: '', body: '', imageUrl: '', enabled: true, items: [] });
 
 function Field({ label, value, onChange, multiline = false, hint, onBlur }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean; hint?: string; onBlur?: () => void }) {
   return (
@@ -24,6 +24,66 @@ function Field({ label, value, onChange, multiline = false, hint, onBlur }: { la
       {multiline ? <textarea rows={4} className="form-field" value={value} onChange={(event) => onChange(event.target.value)} /> : <input className="form-field" value={value} onChange={(event) => onChange(event.target.value)} onBlur={onBlur} />}
       {hint && <span className="mt-1 block text-xs text-[#56615a]">{hint}</span>}
     </label>
+  );
+}
+
+function SectionListEditor({ sections, onChange }: { sections: HomeSection[]; onChange: (sections: HomeSection[]) => void }) {
+  function updateSection(id: string, patch: Partial<HomeSection>) {
+    onChange(sections.map((section) => section.id === id ? { ...section, ...patch } : section));
+  }
+
+  function updateCard(section: HomeSection, cardIndex: number, patch: Partial<NonNullable<HomeSection['items']>[number]>) {
+    updateSection(section.id, { items: (section.items ?? []).map((card, index) => index === cardIndex ? { ...card, ...patch } : card) });
+  }
+
+  return (
+    <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div><h2 className="text-xl text-[#172019]">Page sections</h2><p className="mt-1 text-sm text-[#56615a]">Build sections from headings, text, images, optional links and image cards.</p></div>
+        <button type="button" className="btn btn-secondary" disabled={sections.length >= 24} onClick={() => onChange([...sections, emptyHomeSection()])}><FilePlus2 className="h-4 w-4" /> Add section</button>
+      </div>
+      <div className="space-y-4">
+        {sections.map((section, index) => (
+          <div key={section.id} className="rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-4">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="font-semibold text-[#172019]">Section {index + 1}</h3>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-sm text-[#48534b]"><input type="checkbox" checked={section.enabled} onChange={(event) => updateSection(section.id, { enabled: event.target.checked })} />Visible</label>
+                <button type="button" aria-label={`Remove section ${index + 1}`} className="rounded-lg p-2 text-red-700 hover:bg-red-50" onClick={() => onChange(sections.filter((item) => item.id !== section.id))}><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Section label" value={section.eyebrow} onChange={(value) => updateSection(section.id, { eyebrow: value })} />
+              <Field label="Section heading" value={section.title} onChange={(value) => updateSection(section.id, { title: value })} />
+              <div className="md:col-span-2"><Field label="Section text" value={section.body} onChange={(value) => updateSection(section.id, { body: value })} multiline /></div>
+              <div className="md:col-span-2"><ImageUploadField label="Section image (optional)" value={section.imageUrl} onChange={(value) => updateSection(section.id, { imageUrl: value })} /></div>
+              <Field label="Button label (optional)" value={section.buttonText ?? ''} onChange={(value) => updateSection(section.id, { buttonText: value })} />
+              <Field label="Button link (optional)" value={section.buttonHref ?? ''} onChange={(value) => updateSection(section.id, { buttonHref: value })} />
+            </div>
+            <div className="mt-5 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h4 className="text-sm font-semibold text-[#354239]">Image cards</h4>
+                <button type="button" className="btn btn-secondary" disabled={(section.items?.length ?? 0) >= 12} onClick={() => updateSection(section.id, { items: [...(section.items ?? []), { title: '', body: '', imageUrl: '' }] })}><FilePlus2 className="h-4 w-4" /> Add card</button>
+              </div>
+              {(section.items ?? []).map((item, itemIndex) => (
+                <div key={`${section.id}-${itemIndex}`} className="rounded-lg border border-[#e7ebe7] bg-white p-3">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h5 className="text-sm font-medium text-[#354239]">Card {itemIndex + 1}</h5>
+                    <button type="button" aria-label={`Remove card ${itemIndex + 1} from section ${index + 1}`} className="rounded-lg p-2 text-red-700 hover:bg-red-50" onClick={() => updateSection(section.id, { items: (section.items ?? []).filter((_, cardIndex) => cardIndex !== itemIndex) })}><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Field label="Card heading" value={item.title} onChange={(value) => updateCard(section, itemIndex, { title: value })} />
+                    <Field label="Card text" value={item.body} onChange={(value) => updateCard(section, itemIndex, { body: value })} multiline />
+                    <div className="md:col-span-2"><ImageUploadField label="Card image (optional)" value={item.imageUrl ?? ''} onChange={(value) => updateCard(section, itemIndex, { imageUrl: value })} /></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {sections.length === 0 && <p className="rounded-xl bg-[#f7f8f5] px-4 py-6 text-sm text-[#56615a]">No sections yet. Add a section to build this page.</p>}
+      </div>
+    </section>
   );
 }
 
@@ -77,11 +137,6 @@ export function SiteContentManager({ area }: { area: EditorArea }) {
     setContent((current) => current?.pages[slug] ? { ...current, pages: { ...current.pages, [slug]: { ...current.pages[slug], ...patch } } } : current);
   }
 
-  function updatePageSection(slug: string, id: string, patch: Partial<HomeSection>) {
-    const page = content?.pages[slug];
-    if (page) updatePage(slug, { sections: page.sections.map((item) => item.id === id ? { ...item, ...patch } : item) });
-  }
-
   function addPage() {
     if (!content) return;
     const slug = `new-page-${Object.keys(content.pages).length}`;
@@ -89,21 +144,16 @@ export function SiteContentManager({ area }: { area: EditorArea }) {
     setSelectedPage(slug);
   }
 
-  function addPageSection(slug: string) {
-    const page = content?.pages[slug];
-    if (page) updatePage(slug, { sections: [...page.sections, emptyHomeSection()] });
-  }
-
   function updateNavigationItem(id: string, patch: Partial<SiteNavigationItem>) {
     setContent((current) => current ? { ...current, navigation: { ...current.navigation, items: current.navigation.items.map((item) => item.id === id ? { ...item, ...patch } : item) } } : current);
   }
 
-  function updateSection(id: string, patch: Partial<HomeSection>) {
-    setContent((current) => current ? { ...current, homepage: { ...current.homepage, sections: current.homepage.sections.map((section) => section.id === id ? { ...section, ...patch } : section) } } : current);
+  function updateHomepageSections(sections: HomeSection[]) {
+    setContent((current) => current ? { ...current, homepage: { ...current.homepage, sections } } : current);
   }
 
-  function addSection() {
-    setContent((current) => current ? { ...current, homepage: { ...current.homepage, sections: [...current.homepage.sections, emptyHomeSection()] } } : current);
+  function updatePageSections(slug: string, sections: HomeSection[]) {
+    updatePage(slug, { sections });
   }
 
   function updateService(index: number, patch: Partial<Service>) {
@@ -206,38 +256,7 @@ export function SiteContentManager({ area }: { area: EditorArea }) {
           </div>
         </section>
 
-        <section className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 md:p-6">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div><h2 className="text-xl text-[#172019]">Custom homepage sections</h2><p className="mt-1 text-sm text-[#56615a]">Add sections below the main service and partnership content.</p></div>
-            <button type="button" className="btn btn-secondary" disabled={content.homepage.sections.length >= 12} onClick={addSection}><FilePlus2 className="h-4 w-4" /> Add section</button>
-          </div>
-          <div className="space-y-4">
-            {content.homepage.sections.map((section, index) => (
-              <div key={section.id} className="rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-4">
-                <div className="mb-4 flex items-center justify-between gap-3"><h3 className="font-semibold text-[#172019]">Section {index + 1}</h3><div className="flex items-center gap-3"><label className="flex items-center gap-2 text-sm text-[#48534b]"><input type="checkbox" checked={section.enabled} onChange={(event) => updateSection(section.id, { enabled: event.target.checked })} />Visible</label><button type="button" aria-label={`Remove section ${index + 1}`} className="rounded-lg p-2 text-red-700 hover:bg-red-50" onClick={() => setContent({ ...content, homepage: { ...content.homepage, sections: content.homepage.sections.filter((item) => item.id !== section.id) } })}><Trash2 className="h-4 w-4" /></button></div></div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="Section label" value={section.eyebrow} onChange={(value) => updateSection(section.id, { eyebrow: value })} />
-                  <Field label="Heading" value={section.title} onChange={(value) => updateSection(section.id, { title: value })} />
-                  <div className="md:col-span-2"><Field label="Text" value={section.body} onChange={(value) => updateSection(section.id, { body: value })} multiline /></div>
-                  <div className="md:col-span-2"><ImageUploadField label="Section image (optional)" value={section.imageUrl} onChange={(value) => updateSection(section.id, { imageUrl: value })} /></div>
-                  <Field label="Button label (optional)" value={section.buttonText ?? ''} onChange={(value) => updateSection(section.id, { buttonText: value })} />
-                  <Field label="Button link (optional)" value={section.buttonHref ?? ''} onChange={(value) => updateSection(section.id, { buttonHref: value })} />
-                </div>
-                <div className="mt-4 space-y-3">
-                  {(section.items ?? []).map((item, itemIndex) => (
-                    <div key={`${section.id}-${itemIndex}`} className="grid gap-3 rounded-lg border border-[#e7ebe7] bg-white p-3 md:grid-cols-2">
-                      <Field label={`Card ${itemIndex + 1} title`} value={item.title} onChange={(value) => updateSection(section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, title: value } : card) })} />
-                      <Field label={`Card ${itemIndex + 1} text`} value={item.body} onChange={(value) => updateSection(section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, body: value } : card) })} multiline />
-                      <div className="md:col-span-2"><ImageUploadField label="Card image (optional)" value={item.imageUrl ?? ''} onChange={(value) => updateSection(section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, imageUrl: value } : card) })} /></div>
-                    </div>
-                  ))}
-                  <button type="button" className="btn btn-secondary" disabled={(section.items?.length ?? 0) >= 12} onClick={() => updateSection(section.id, { items: [...(section.items ?? []), { title: '', body: '' }] })}>Add card</button>
-                </div>
-              </div>
-            ))}
-            {content.homepage.sections.length === 0 && <p className="rounded-xl bg-[#f7f8f5] px-4 py-6 text-sm text-[#56615a]">No custom sections yet.</p>}
-          </div>
-        </section>
+        <SectionListEditor sections={content.homepage.sections} onChange={updateHomepageSections} />
         </>}
       </div>}
 
@@ -284,13 +303,7 @@ export function SiteContentManager({ area }: { area: EditorArea }) {
             <div className="md:col-span-2"><Field label="Introduction" value={activePage.introduction} onChange={(value) => updatePage(activePageSlug, { introduction: value })} multiline /></div>
             <div className="md:col-span-2"><ImageUploadField label="Hero image" value={activePage.imageUrl} onChange={(value) => updatePage(activePageSlug, { imageUrl: value })} /></div>
           </div>
-          <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold text-[#172019]">Page sections</h3><button type="button" className="btn btn-secondary" disabled={activePage.sections.length >= 24} onClick={() => addPageSection(activePageSlug)}><FilePlus2 className="h-4 w-4" /> Add section</button></div>
-          {activePage.sections.map((section, index) => <div key={section.id} className="rounded-xl border border-[#e7ebe7] bg-[#f9faf8] p-4">
-            <div className="mb-3 flex items-center justify-between"><h4 className="font-semibold text-[#172019]">Section {index + 1}</h4><div className="flex items-center gap-3"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={section.enabled} onChange={(event) => updatePageSection(activePageSlug, section.id, { enabled: event.target.checked })} />Visible</label><button type="button" className="rounded-lg p-2 text-red-700 hover:bg-red-50" aria-label={`Remove page section ${index + 1}`} onClick={() => updatePage(activePageSlug, { sections: activePage.sections.filter((item) => item.id !== section.id) })}><Trash2 className="h-4 w-4" /></button></div></div>
-            <div className="grid gap-4 md:grid-cols-2"><Field label="Section label" value={section.eyebrow} onChange={(value) => updatePageSection(activePageSlug, section.id, { eyebrow: value })} /><Field label="Section heading" value={section.title} onChange={(value) => updatePageSection(activePageSlug, section.id, { title: value })} /><div className="md:col-span-2"><Field label="Section text" value={section.body} onChange={(value) => updatePageSection(activePageSlug, section.id, { body: value })} multiline /></div><div className="md:col-span-2"><ImageUploadField label="Section image" value={section.imageUrl} onChange={(value) => updatePageSection(activePageSlug, section.id, { imageUrl: value })} /></div><Field label="Button label (optional)" value={section.buttonText ?? ''} onChange={(value) => updatePageSection(activePageSlug, section.id, { buttonText: value })} /><Field label="Button link (optional)" value={section.buttonHref ?? ''} onChange={(value) => updatePageSection(activePageSlug, section.id, { buttonHref: value })} /></div>
-            {(section.items ?? []).map((item, itemIndex) => <div key={`${section.id}-${itemIndex}`} className="mt-3 grid gap-3 rounded-lg border border-[#e7ebe7] bg-white p-3 md:grid-cols-2"><Field label={`Card ${itemIndex + 1} title`} value={item.title} onChange={(value) => updatePageSection(activePageSlug, section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, title: value } : card) })} /><Field label={`Card ${itemIndex + 1} text`} value={item.body} onChange={(value) => updatePageSection(activePageSlug, section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, body: value } : card) })} multiline /><div className="md:col-span-2"><ImageUploadField label="Card image (optional)" value={item.imageUrl ?? ''} onChange={(value) => updatePageSection(activePageSlug, section.id, { items: section.items?.map((card, index) => index === itemIndex ? { ...card, imageUrl: value } : card) })} /></div></div>)}
-            <button type="button" className="btn btn-secondary mt-3" disabled={(section.items?.length ?? 0) >= 12} onClick={() => updatePageSection(activePageSlug, section.id, { items: [...(section.items ?? []), { title: '', body: '' }] })}>Add card</button>
-          </div>)}
+          <SectionListEditor sections={activePage.sections} onChange={(sections) => updatePageSections(activePageSlug, sections)} />
           {activePageSlug.startsWith('new-page-') && <p className="text-sm text-[#56615a]">Save this page, then add a navigation link using its URL path. Standard pages retain their existing interactive forms and content.</p>}
         </section>
       </div>}
