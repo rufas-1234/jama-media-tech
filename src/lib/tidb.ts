@@ -25,13 +25,14 @@ export function getTiDBPool(): Pool {
     throw new Error('TIDB_PORT must be a valid TCP port.');
   }
 
+  const ca = process.env.TIDB_CA_CERT?.replace(/\\n/g, '\n').trim();
   const pool = createPool({
     host: process.env.TIDB_HOST,
     port,
     user: process.env.TIDB_USER,
     password: process.env.TIDB_PASSWORD,
     database: process.env.TIDB_DATABASE,
-    ssl: { rejectUnauthorized: true },
+    ssl: { rejectUnauthorized: true, ...(ca ? { ca } : {}) },
     waitForConnections: true,
     connectionLimit: 5,
     maxIdle: 2,

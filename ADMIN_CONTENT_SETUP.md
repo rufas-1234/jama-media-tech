@@ -16,6 +16,7 @@ Without TiDB credentials, development uses `data/news-posts.json` and `data/site
    - `TIDB_USER`: application username.
    - `TIDB_PASSWORD`: application password.
    - `TIDB_DATABASE`: database name.
+   - `TIDB_CA_CERT`: optional PEM certificate content if your cluster requires its downloaded CA certificate. Paste the certificate content (preserving PEM newlines), not a local file path.
 
 The application connects using TLS and expects the schema to exist before deployment. Do not expose TiDB credentials through `NEXT_PUBLIC_*` variables.
 
