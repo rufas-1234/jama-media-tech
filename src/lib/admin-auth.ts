@@ -100,10 +100,12 @@ export async function getAdminSession(): Promise<AdminPrincipal | undefined> {
   const cookieStore = await cookies();
   const claims = verifyAdminSessionToken(cookieStore.get(cookieName)?.value);
   if (!claims) return undefined;
-  if (claims.role === 'admin') return { username: claims.username, role: 'admin' };
-  const publisher = await getPublisherByEmail(claims.username);
-  if (!publisher || publisher.id !== claims.publisherId || publisher.status !== 'active') return undefined;
-  return { username: publisher.email, role: 'publisher', publisherId: publisher.id };
+  if (claims.publisherId !== undefined) {
+    const publisher = await getPublisherByEmail(claims.username);
+    if (!publisher || publisher.id !== claims.publisherId || publisher.status !== 'active') return undefined;
+    return { username: publisher.email, role: publisher.role, publisherId: publisher.id };
+  }
+  return claims.role === 'admin' ? { username: claims.username, role: 'admin' } : undefined;
 }
 
 export async function hasAdminSession() {
@@ -114,7 +116,7 @@ export async function authenticateAdmin(username: string, password: string): Pro
   if (validateAdminCredentials(username, password)) return { username, role: 'admin' };
   const publisher = await getPublisherByEmail(username);
   if (!publisher || publisher.status !== 'active' || !(await verifyPublisherPassword(password, publisher.passwordHash))) return undefined;
-  return { username: publisher.email, role: 'publisher', publisherId: publisher.id };
+  return { username: publisher.email, role: publisher.role, publisherId: publisher.id };
 }
 
 export async function setAdminSession(principal: AdminPrincipal) {

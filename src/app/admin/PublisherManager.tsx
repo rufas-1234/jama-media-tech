@@ -7,6 +7,7 @@ type Publisher = {
   id: number;
   name: string;
   email: string;
+  role: 'admin' | 'publisher';
   status: 'active' | 'disabled';
   createdAt: string;
 };
@@ -131,7 +132,7 @@ export function PublisherManager() {
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-[#1b211d]">{publisher.name}</p>
                   <p className="mt-1 truncate text-sm text-[#56615a]">{publisher.email}</p>
-                  <p className="mt-1 text-xs text-[#647067]">Full content access · {publisher.status}</p>
+                  <p className="mt-1 text-xs text-[#647067]">{publisher.role === 'admin' ? 'Admin' : 'Publisher'} · {publisher.status}</p>
                 </div>
                 <button type="button" disabled={busy} aria-label={`Remove ${publisher.email}`} title="Remove publisher access" className="rounded-lg p-2 text-red-700 hover:bg-red-50 disabled:opacity-50" onClick={() => void removeAccount(publisher)}>
                   <Trash2 className="h-4 w-4" />

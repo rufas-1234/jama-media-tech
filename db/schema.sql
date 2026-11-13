@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS admin_publishers (
   name VARCHAR(120) NOT NULL,
   email VARCHAR(254) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'publisher') NOT NULL DEFAULT 'publisher',
   status ENUM('active', 'disabled') NOT NULL DEFAULT 'active',
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)

@@ -11,6 +11,7 @@ export type Publisher = {
   id: number;
   name: string;
   email: string;
+  role: 'admin' | 'publisher';
   status: 'active' | 'disabled';
   createdAt: string;
 };
@@ -20,6 +21,7 @@ type PublisherRow = RowDataPacket & {
   name: string;
   email: string;
   password_hash: string;
+  role: 'admin' | 'publisher';
   status: 'active' | 'disabled';
   created_at: Date | string;
 };
@@ -29,19 +31,19 @@ function toPublisher(row: PublisherRow): Publisher {
   if (!Number.isSafeInteger(id) || id < 1) throw new Error('TiDB returned an invalid publisher ID.');
   const createdAt = row.created_at instanceof Date ? row.created_at.toISOString() : new Date(row.created_at).toISOString();
   if (Number.isNaN(Date.parse(createdAt))) throw new Error('TiDB returned an invalid publisher creation date.');
-  return { id, name: row.name, email: row.email, status: row.status, createdAt };
+  return { id, name: row.name, email: row.email, role: row.role, status: row.status, createdAt };
 }
 
 export async function listPublishers(): Promise<Publisher[]> {
   const [rows] = await getTiDBPool().execute<PublisherRow[]>(
-    'SELECT id, name, email, password_hash, status, created_at FROM admin_publishers ORDER BY created_at DESC, id DESC',
+    'SELECT id, name, email, password_hash, role, status, created_at FROM admin_publishers ORDER BY created_at DESC, id DESC',
   );
   return rows.map(toPublisher);
 }
 
 export async function getPublisherByEmail(email: string): Promise<(Publisher & { passwordHash: string }) | undefined> {
   const [rows] = await getTiDBPool().execute<PublisherRow[]>(
-    'SELECT id, name, email, password_hash, status, created_at FROM admin_publishers WHERE email = ? LIMIT 1',
+    'SELECT id, name, email, password_hash, role, status, created_at FROM admin_publishers WHERE email = ? LIMIT 1',
     [email.trim().toLowerCase()],
   );
   if (!rows[0]) return undefined;
@@ -65,6 +67,7 @@ export async function createPublisher(name: string, email: string, password: str
     id: publisher.id,
     name: publisher.name,
     email: publisher.email,
+    role: publisher.role,
     status: publisher.status,
     createdAt: publisher.createdAt,
   };
