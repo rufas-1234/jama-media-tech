@@ -1,6 +1,7 @@
-import { ArrowRight, Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { getSiteContent } from '@/lib/site-content';
 import { EditableSections, PageHero } from '@/components/content/EditablePage';
+import { BusinessRequestForm } from '@/components/content/BusinessRequestForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,55 +37,7 @@ export default async function ContactPage() {
 
           <div className="rounded-[2rem] border border-[#d9d0c4] bg-white/85 p-8 shadow-[0_18px_50px_rgba(17,24,26,0.06)]">
             <h2 className="mb-6 text-2xl text-[#1d1f20]">Send an enquiry</h2>
-            <form className="space-y-5">
-              <div className="grid gap-5 md:grid-cols-2">
-                <label className="block">
-                  <span className="form-label">Full name</span>
-                  <input type="text" className="form-field" placeholder="Your name" />
-                </label>
-                <label className="block">
-                  <span className="form-label">Organisation</span>
-                  <input type="text" className="form-field" placeholder="Organisation" />
-                </label>
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-2">
-                <label className="block">
-                  <span className="form-label">Email</span>
-                  <input type="email" className="form-field" placeholder="name@example.com" />
-                </label>
-                <label className="block">
-                  <span className="form-label">Telephone</span>
-                  <input type="tel" className="form-field" placeholder="Telephone number" />
-                </label>
-              </div>
-
-              <label className="block">
-                <span className="form-label">Subject</span>
-                <input type="text" className="form-field" placeholder="Subject" />
-              </label>
-
-              <label className="block">
-                <span className="form-label">Enquiry category</span>
-                <select className="form-field">
-                  <option>General enquiry</option>
-                  <option>Supply and logistics</option>
-                  <option>Plastic recycling</option>
-                  <option>ICT consultancy</option>
-                  <option>Internet infrastructure</option>
-                  <option>Partnership</option>
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="form-label">Message</span>
-                <textarea rows={5} className="form-field" placeholder="Tell us about your requirements" />
-              </label>
-
-              <button type="submit" className="btn btn-primary inline-flex">
-                Send enquiry <ArrowRight className="h-5 w-5" />
-              </button>
-            </form>
+            <BusinessRequestForm type="enquiry" />
           </div>
         </div>
       </section>

@@ -12,7 +12,8 @@ Without TiDB credentials, development uses `data/news-posts.json` and `data/site
 2. Select the database in the TiDB SQL editor and run [`db/schema.sql`](./db/schema.sql).
 3. If this database already has the `posts` table, run [`db/migrations/002-post-gallery-images.sql`](./db/migrations/002-post-gallery-images.sql) once to enable multiple images per news story or project. New databases already include this column in `schema.sql`.
 4. If this database already exists, run [`db/migrations/003-admin-publishers.sql`](./db/migrations/003-admin-publishers.sql) once to enable publisher accounts. New databases already include this table in `schema.sql`.
-5. Configure the following server-only environment variables:
+5. Before deploying request handling, run [`db/migrations/004-business-requests.sql`](./db/migrations/004-business-requests.sql) against the production database. This creates the table for contact enquiries and quotation requests; new databases already include it in `schema.sql`.
+6. Configure the following server-only environment variables:
    - `TIDB_HOST`: cluster endpoint hostname.
    - `TIDB_PORT`: cluster port, normally `4000`.
    - `TIDB_USER`: application username.
@@ -31,7 +32,6 @@ Create or link the `jama-media-tech` Vercel project, connect it to `rufas-1234/j
 - `ADMIN_SESSION_SECRET`: a randomly generated secret with at least 32 characters.
 - `NEXT_PUBLIC_SITE_URL`: the production Vercel URL or custom domain.
 - `NEXT_PUBLIC_BASE_PATH`: leave blank unless the site is intentionally hosted below a URL path.
-- `ENQUIRIES_ENABLED`: keep `false` until enquiry handling and privacy wording are configured.
 
 Create a **public** Vercel Blob store and connect it to the project using Vercel's default OIDC authentication. Vercel adds the store/OIDC environment values; the app uses those on Vercel. `BLOB_READ_WRITE_TOKEN` is optional for local or non-Vercel use. Uploaded images are public because they are displayed by public pages. Keep any static token server-only.
 
@@ -44,3 +44,5 @@ The application no longer calls WordPress. Existing WordPress posts and site set
 ## Verify
 
 After applying the schema and setting Vercel variables, deploy and sign in at `/admin/login`. The configured admin can create publisher accounts from the Publishers dashboard section, using passwords of at least 6 characters. Publishers can access all content editing, publishing, and image uploads, but cannot create or remove accounts. Passwords are stored as scrypt hashes; deleting an account immediately revokes its active access. Verify editing site content, publishing news/projects, and uploading an image. Do not rely on local JSON or `public/uploads` for production data.
+
+Contact enquiries and quotation requests are stored in the `business_requests` table. Only the primary admin account can view and update them in the **Requests** section of the admin dashboard; publishers cannot access customer contact details. Admins can track status, save internal notes, prepare a response and quote amount, and open a prefilled email to reply to a requester. The application does not send email automatically. In development without TiDB, requests are saved locally in `data/business-requests.json`; local file storage is not persistent on Vercel.

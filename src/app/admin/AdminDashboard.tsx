@@ -7,9 +7,10 @@ import { projectCategories } from '@/lib/content';
 import { SiteContentManager, type EditorArea } from './SiteContentManager';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
 import { PublisherManager } from './PublisherManager';
+import { RequestManager } from './RequestManager';
 
 type ContentKind = 'news' | 'project';
-type DashboardSection = EditorArea | 'news' | 'projects' | 'publishers';
+type DashboardSection = EditorArea | 'news' | 'projects' | 'publishers' | 'requests';
 
 type Post = {
   id: number;
@@ -205,7 +206,7 @@ export function AdminDashboard({ role, username }: { role: 'admin' | 'publisher'
           </div>
         </div>
 
-        {storage && <p className="mb-6 rounded-xl border border-[#dfe5df] bg-white/80 px-4 py-3 text-sm text-[#48534b]">
+        {storage && activeSection !== 'requests' && <p className="mb-6 rounded-xl border border-[#dfe5df] bg-white/80 px-4 py-3 text-sm text-[#48534b]">
           {storage === 'tidb' ? 'Connected to TiDB Cloud. Published posts appear on the site.' : 'Local preview storage. Posts are saved to this development workspace; configure TiDB Cloud before deployment.'}
         </p>}
         {notice && <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{notice}</p>}
@@ -224,11 +225,12 @@ export function AdminDashboard({ role, username }: { role: 'admin' | 'publisher'
                   if (key === 'projects') startNew('project');
                 }}>{label}</button>
               ))}
+              {role === 'admin' && <button type="button" aria-current={activeSection === 'requests' ? 'page' : undefined} className={`w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium ${activeSection === 'requests' ? 'bg-[#edf2ed] text-[#28583e]' : 'text-[#48534b] hover:bg-[#f7f8f5]'}`} onClick={() => setActiveSection('requests')}>Requests</button>}
               {role === 'admin' && <button type="button" aria-current={activeSection === 'publishers' ? 'page' : undefined} className={`w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium ${activeSection === 'publishers' ? 'bg-[#edf2ed] text-[#28583e]' : 'text-[#48534b] hover:bg-[#f7f8f5]'}`} onClick={() => setActiveSection('publishers')}>Publishers</button>}
             </nav>
           </aside>
           <div className="min-w-0">
-        {activeSection === 'publishers' ? <PublisherManager /> : activeSection !== 'news' && activeSection !== 'projects' ? <SiteContentManager area={activeSection} /> : <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        {activeSection === 'requests' ? <RequestManager /> : activeSection === 'publishers' ? <PublisherManager /> : activeSection !== 'news' && activeSection !== 'projects' ? <SiteContentManager area={activeSection} /> : <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <section aria-labelledby="posts-heading" className="rounded-[1.5rem] border border-[#dfe5df] bg-white p-5 shadow-sm md:p-6">
             <div className="mb-5 flex items-center justify-between gap-3">
               <h2 id="posts-heading" className="text-xl text-[#172019]">{contentType === 'project' ? 'Projects' : 'Posts'}</h2>

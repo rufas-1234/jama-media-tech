@@ -34,3 +34,29 @@ CREATE TABLE IF NOT EXISTS admin_publishers (
     ON UPDATE CURRENT_TIMESTAMP(3),
   UNIQUE KEY admin_publishers_email (email)
 );
+
+CREATE TABLE IF NOT EXISTS business_requests (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  request_type ENUM('enquiry', 'quotation') NOT NULL,
+  full_name VARCHAR(120) NOT NULL,
+  organization VARCHAR(160) NOT NULL DEFAULT '',
+  email VARCHAR(254) NOT NULL,
+  phone VARCHAR(60) NOT NULL DEFAULT '',
+  country VARCHAR(120) NOT NULL DEFAULT '',
+  subject VARCHAR(180) NOT NULL,
+  category VARCHAR(120) NOT NULL,
+  requirements TEXT NOT NULL,
+  scope VARCHAR(500) NOT NULL DEFAULT '',
+  delivery_location VARCHAR(160) NOT NULL DEFAULT '',
+  status ENUM('new', 'reviewing', 'quoted', 'closed') NOT NULL DEFAULT 'new',
+  internal_notes TEXT NOT NULL,
+  response_message TEXT NOT NULL,
+  quote_amount DECIMAL(15, 2) NULL,
+  quote_currency CHAR(3) NOT NULL DEFAULT '',
+  consented_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  submitted_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+    ON UPDATE CURRENT_TIMESTAMP(3),
+  KEY business_requests_queue (status, submitted_at),
+  KEY business_requests_type (request_type, submitted_at)
+);

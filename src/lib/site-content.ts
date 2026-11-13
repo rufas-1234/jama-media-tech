@@ -214,8 +214,8 @@ export const defaultPages: Record<string, EditablePage> = {
     introduction: '',
     imageUrl: '',
     sections: [
-      section('privacy-use', '', 'How we use information', 'This website is managed to support legitimate business communication and service enquiries. Personal information submitted through forms will be used only for the purposes stated at the point of collection.'),
-      section('privacy-sharing', '', 'Data sharing and retention', 'We do not sell or share personal data with third parties for marketing purposes. Data may be retained to respond to enquiries, maintain records and support operational follow-up.'),
+      section('privacy-use', '', 'How we use information', 'This website is managed to support legitimate business communication and service enquiries. Information submitted through contact and quotation forms is stored securely in our business request system and used by authorised Jama Tech staff to review and respond to your request.'),
+      section('privacy-sharing', '', 'Data sharing and retention', 'We do not sell or share personal data with third parties for marketing purposes. Request information is retained only as needed to respond, maintain business records and support operational follow-up.'),
       section('privacy-rights', '', 'Your choices', 'Visitors may request access to, correction of or deletion of personal information where applicable and as permitted under law.'),
     ],
   },
