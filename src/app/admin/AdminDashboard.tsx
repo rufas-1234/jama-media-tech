@@ -41,7 +41,7 @@ function ImageGalleryField({ images, onChange }: { images: string[]; onChange: (
         <ImageUploadField
           label={`${index === 0 ? 'Cover image' : `Gallery image ${index + 1}`}${index === 0 ? ' (optional)' : ''}`}
           value={image}
-          hint="Upload an image or paste its URL. JPEG, PNG, WebP or GIF; maximum 5 MB."
+          hint="Use a landscape image (16:9 recommended) for the cleanest fit. Images display in responsive frames; JPEG, PNG, WebP or GIF up to 5 MB."
           onChange={(value) => onChange(images.map((item, itemIndex) => itemIndex === index ? value : item))}
         />
         {images.length > 1 && <button type="button" className="mt-2 inline-flex items-center gap-2 rounded-lg px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50" onClick={() => onChange(images.filter((_, itemIndex) => itemIndex !== index))}><Trash2 className="h-3.5 w-3.5" /> Remove image</button>}

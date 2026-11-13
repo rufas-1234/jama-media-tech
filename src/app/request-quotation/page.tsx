@@ -8,7 +8,7 @@ export default async function RequestQuotationPage() {
   const { pages } = await getSiteContent();
   return (
     <>
-      <PageHero page={pages['request-quotation']} />
+      <PageHero page={pages['request-quotation']} slug="request-quotation" />
       <EditableSections sections={pages['request-quotation'].sections} />
 
       <section className="section-surface py-16 lg:py-24">

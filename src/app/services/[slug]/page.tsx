@@ -20,13 +20,18 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   return (
     <>
       <section className="service-detail-hero relative overflow-hidden bg-[#17231d] py-16 text-white sm:py-20 lg:py-28">
-        <div className="container relative z-10">
-          <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#c5e8ed]">{service.number} / {service.short}</p>
-          <h1 className="max-w-4xl text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-white">{service.title}</h1>
-          <p className="mt-6 max-w-3xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">{service.introduction}</p>
-          <Link href="/request-quotation" className="btn btn-primary mt-8">
-            Discuss this service <ArrowRight className="h-5 w-5" />
-          </Link>
+        <div className="container relative z-10 grid items-center gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:gap-12">
+          <div>
+            <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#c5e8ed]">{service.number} / {service.short}</p>
+            <h1 className="max-w-4xl text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-white">{service.title}</h1>
+            <p className="mt-6 max-w-3xl text-base leading-7 text-white/75 sm:text-lg sm:leading-8">{service.introduction}</p>
+            <Link href="/request-quotation" className="btn btn-primary mt-8">
+              Discuss this service <ArrowRight className="h-5 w-5" />
+            </Link>
+          </div>
+          <div className="relative mx-auto aspect-[4/3] w-full max-w-[38rem] overflow-hidden rounded-[1.5rem] border border-white/15 bg-[#101812]/70 shadow-[0_24px_70px_rgba(0,0,0,0.25)] sm:rounded-[2rem]">
+            <img src={imageSource(service.image, 1400)} alt={service.alt} className="h-full w-full object-contain" />
+          </div>
         </div>
       </section>
 

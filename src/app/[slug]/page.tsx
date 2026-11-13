@@ -10,5 +10,5 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
   const page = pages[slug];
   if (!page) notFound();
 
-  return <><PageHero page={page} /><EditableSections sections={page.sections} /></>;
+  return <><PageHero page={page} slug={slug} /><EditableSections sections={page.sections} /></>;
 }

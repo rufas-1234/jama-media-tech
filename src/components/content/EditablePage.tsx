@@ -19,16 +19,34 @@ const cardImages: Record<string, string[]> = {
   'our-values': ['photo-1521737711867-e3b97375f902', 'photo-1497366811353-6870744d04b2', 'photo-1532996122724-e3c354a0b15b', 'photo-1522202176988-66273c2fd55f', 'photo-1586528116311-ad8dd3c8310d'],
 };
 
-export function PageHero({ page }: { page: EditablePage }) {
+const pageHeroImages: Record<string, string> = {
+  about: 'photo-1521737711867-e3b97375f902',
+  sustainability: 'photo-1532996122724-e3c354a0b15b',
+  leadership: 'photo-1522202176988-66273c2fd55f',
+  services: 'photo-1586528116311-ad8dd3c8310d',
+  projects: 'photo-1593113630400-ea4288922497',
+  news: 'photo-1497366811353-6870744d04b2',
+  contact: 'photo-1521737711867-e3b97375f902',
+  'request-quotation': 'photo-1586528116311-ad8dd3c8310d',
+  'privacy-policy': 'photo-1497366811353-6870744d04b2',
+  'terms-conditions': 'photo-1522202176988-66273c2fd55f',
+};
+
+export function PageHero({ page, slug }: { page: EditablePage; slug: string }) {
+  const image = page.imageUrl || pageHeroImages[slug] || 'photo-1521737711867-e3b97375f902';
+
   return (
     <section className="relative overflow-hidden bg-[#17231d] py-16 text-white sm:py-20 lg:py-28">
-      <div className={`container relative z-10 grid items-center gap-10 ${page.imageUrl ? 'lg:grid-cols-[1fr_0.8fr]' : ''}`}>
+      <div className="container relative z-10 grid items-center gap-8 lg:grid-cols-[1fr_0.8fr] lg:gap-10">
         <div className="max-w-4xl">
           {page.eyebrow && <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#b3e3ed]">{page.eyebrow}</p>}
           <h1 className="whitespace-pre-line text-[clamp(2.6rem,6vw,5rem)] font-semibold leading-[1.02] tracking-[-0.06em] text-white">{page.title}</h1>
           {page.introduction && <p className="mt-6 max-w-3xl whitespace-pre-line text-base leading-7 text-white/75 sm:text-lg sm:leading-8">{page.introduction}</p>}
         </div>
-        {page.imageUrl && <img src={imageSource(page.imageUrl, 1200)} alt="" className="max-h-[28rem] min-h-64 w-full rounded-[2rem] object-cover shadow-2xl" />}
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.5rem] border border-white/15 bg-black/20 shadow-2xl sm:rounded-[2rem]">
+          <img src={imageSource(image, 1200)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101812]/25 to-transparent" />
+        </div>
       </div>
     </section>
   );
@@ -114,5 +132,5 @@ export async function EditablePageView({ slug }: { slug: string }) {
   const { pages } = await getSiteContent();
   const page = pages[slug];
   if (!page) return null;
-  return <><PageHero page={page} /><EditableSections sections={page.sections} /></>;
+  return <><PageHero page={page} slug={slug} /><EditableSections sections={page.sections} /></>;
 }

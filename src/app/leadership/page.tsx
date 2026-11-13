@@ -7,7 +7,7 @@ export default async function LeadershipPage() {
   const { teamMembers, pages } = await getSiteContent();
   return (
     <>
-      <PageHero page={pages.leadership} />
+      <PageHero page={pages.leadership} slug="leadership" />
       <EditableSections sections={pages.leadership.sections} />
 
       <TeamMembersSection teamMembers={teamMembers} eyebrow="Our people" title="Leadership & governance." />

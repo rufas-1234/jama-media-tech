@@ -29,17 +29,20 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <article className="min-h-screen bg-[#f7f8f5] pb-16 lg:pb-24">
-      <section className="relative isolate min-h-[26rem] overflow-hidden bg-[#17231d] sm:min-h-[34rem]">
-        <img src={imageSource(article.imageUrl, 1800)} alt={article.title} className="absolute inset-0 -z-20 h-full w-full object-cover" />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#101812]/95 via-[#101812]/45 to-[#101812]/15" />
-        <div className="container flex min-h-[26rem] flex-col justify-end py-12 text-white sm:min-h-[34rem] lg:py-16">
-          <Link href="/news" className="mb-auto inline-flex w-fit items-center gap-2 rounded-full border border-white/35 bg-[#101812]/25 px-4 py-2 text-sm text-white backdrop-blur transition-colors hover:bg-white/15">
-            <ArrowLeft className="h-4 w-4" /> All news
-          </Link>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5e8ed]">{article.category || 'News & insights'}</p>
-          <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">{article.title}</h1>
-          {article.excerpt && <p className="mt-5 max-w-3xl text-lg leading-8 text-white/85">{article.excerpt}</p>}
-          {date && <p className="mt-5 flex items-center gap-2 text-sm text-white/80"><CalendarDays className="h-4 w-4 text-[#b3e3ed]" />{date}</p>}
+      <section className="bg-[#17231d] py-10 sm:py-14 lg:py-16">
+        <div className="container grid items-center gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:gap-12">
+          <div className="text-white">
+            <Link href="/news" className="mb-8 inline-flex w-fit items-center gap-2 rounded-full border border-white/35 bg-white/10 px-4 py-2 text-sm text-white backdrop-blur transition-colors hover:bg-white/15">
+              <ArrowLeft className="h-4 w-4" /> All news
+            </Link>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#c5e8ed]">{article.category || 'News & insights'}</p>
+            <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">{article.title}</h1>
+            {article.excerpt && <p className="mt-5 max-w-3xl text-lg leading-8 text-white/85">{article.excerpt}</p>}
+            {date && <p className="mt-5 flex items-center gap-2 text-sm text-white/80"><CalendarDays className="h-4 w-4 text-[#b3e3ed]" />{date}</p>}
+          </div>
+          <div className="relative mx-auto aspect-[4/3] w-full max-w-[38rem] overflow-hidden rounded-[1.5rem] border border-white/15 bg-[#101812]/70 shadow-[0_24px_70px_rgba(0,0,0,0.25)] sm:rounded-[2rem]">
+            <img src={imageSource(article.imageUrl, 1400)} alt={article.title} className="h-full w-full object-contain" />
+          </div>
         </div>
       </section>
 

@@ -12,7 +12,7 @@ export default async function ProjectsPage() {
   const { pages } = await getSiteContent();
   return (
     <>
-      <PageHero page={pages.projects} />
+      <PageHero page={pages.projects} slug="projects" />
       <EditableSections sections={pages.projects.sections} />
 
       <section className="bg-[#f4f0ea] py-10">

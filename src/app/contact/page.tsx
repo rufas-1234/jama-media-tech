@@ -8,7 +8,7 @@ export default async function ContactPage() {
   const { company, pages } = await getSiteContent();
   return (
     <>
-      <PageHero page={pages.contact} />
+      <PageHero page={pages.contact} slug="contact" />
       <EditableSections sections={pages.contact.sections} />
 
       <section className="section-surface py-16 lg:py-24">

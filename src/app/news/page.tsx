@@ -13,13 +13,13 @@ export default async function NewsPage() {
 
   return (
     <>
-      <PageHero page={pages.news} />
+      <PageHero page={pages.news} slug="news" />
       <EditableSections sections={pages.news.sections} />
 
       <section className="section-surface py-12 lg:py-20">
         <div className="container">
           {featuredArticle && <Link href={`/news/${featuredArticle.slug}`} className="news-feature group grid overflow-hidden rounded-[2rem] border border-[#dfe5df] bg-white shadow-sm lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="relative min-h-64 overflow-hidden sm:min-h-80 lg:min-h-[26rem]">
+            <div className="relative aspect-[16/10] overflow-hidden sm:aspect-video lg:aspect-auto lg:min-h-[24rem]">
               <img src={featuredArticle.image} alt={featuredArticle.title} className="news-cover-image absolute inset-0 h-full w-full object-cover" />
               <span className="absolute left-5 top-5 rounded-full bg-white/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#28583e]">Featured story</span>
             </div>
@@ -42,7 +42,7 @@ export default async function NewsPage() {
           {otherArticles.length ? <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {otherArticles.map((article) => (
               <Link key={article.slug} href={`/news/${article.slug}`} className="news-card group block overflow-hidden rounded-[1.5rem] border border-[#dfe5df] bg-white shadow-sm">
-                <div className="h-56 overflow-hidden">
+                <div className="aspect-video overflow-hidden">
                   <img src={article.image} alt={article.title} className="news-cover-image h-full w-full object-cover" />
                 </div>
                 <div className="p-6">

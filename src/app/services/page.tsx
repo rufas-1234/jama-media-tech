@@ -11,7 +11,7 @@ export default async function ServicesPage() {
 
   return (
     <>
-      <PageHero page={pages.services} />
+      <PageHero page={pages.services} slug="services" />
 
       <section className="section-surface py-16 lg:py-24">
         <div className="container">

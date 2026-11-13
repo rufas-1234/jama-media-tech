@@ -7,7 +7,7 @@ export default async function AboutPage() {
   const { pages, teamMembers } = await getSiteContent();
   return (
     <>
-      <PageHero page={pages.about} />
+      <PageHero page={pages.about} slug="about" />
       <EditableSections sections={pages.about.sections} />
       <TeamMembersSection teamMembers={teamMembers} eyebrow="The people behind Jama Tech" title="Local experience. Shared purpose." />
     </>
