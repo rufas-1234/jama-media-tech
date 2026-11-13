@@ -59,13 +59,40 @@ export const leadershipRoles = [
 ];
 export const projectCategories = ['ICT Infrastructure', 'Web Development', 'Supply Chain', 'Food & NFIs', 'Recycling', 'Digital Media', 'Community Initiatives'];
 export const enquiryCategories = ['Food and NFIs', 'Plastic Recycling', 'ICT Consultancy', 'Internet Infrastructure', 'Web Development', 'Partnership', 'Other'];
-export const photo = (id: string, width = 1400, quality = 85) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=${quality}`;
-export const imageSource = (value: string, width = 1400) => value.startsWith('http') || value.startsWith('/') ? value : photo(value, width);
+const stockImageReplacements: Record<string, string> = {
+  'photo-1586528116311-ad8dd3c8310d': 'photo-1578575437130-527eed3abbec',
+  'photo-1532996122724-e3c354a0b15b': 'photo-1611284446314-60a58ac0deb9',
+  'photo-1497366811353-6870744d04b2': 'photo-1497366216548-37526070297c',
+  'photo-1558494949-ef010cbdcc31': 'photo-1544197150-b99a580bb7a8',
+  'photo-1522202176988-66273c2fd55f': 'photo-1517245386807-bb43f82c33c4',
+  'photo-1497366754035-f200968a6e72': 'photo-1498050108023-c5249f4df085',
+  'photo-1516321318423-f06f85e504b3': 'photo-1519389950473-47ba0277781c',
+  'photo-1521737711867-e3b97375f902': 'photo-1531482615713-2afd69097998',
+  'photo-1593113630400-ea4288922497': 'photo-1469571486292-0ba58a3f068b',
+};
+
+function replaceStockImage(value: string) {
+  if (!value.startsWith('http')) return stockImageReplacements[value] ?? value;
+  try {
+    const url = new URL(value);
+    if (url.hostname === 'images.unsplash.com') {
+      const replacement = stockImageReplacements[url.pathname.slice(1)];
+      if (replacement) url.pathname = `/${replacement}`;
+      return url.toString();
+    }
+  } catch {
+    return value;
+  }
+  return value;
+}
+
+export const photo = (id: string, width = 1400, quality = 85) => `https://images.unsplash.com/${stockImageReplacements[id] ?? id}?auto=format&fit=crop&w=${width}&q=${quality}`;
+export const imageSource = (value: string, width = 1400) => value.startsWith('http') || value.startsWith('/') ? replaceStockImage(value) : photo(value, width);
 export function heroImageSource(value: string) {
   if (!value) return '';
   if (!value.startsWith('http') && !value.startsWith('/')) return photo(value, 2560, 95);
   try {
-    const url = new URL(value);
+    const url = new URL(replaceStockImage(value));
     if (url.hostname === 'images.unsplash.com') {
       url.searchParams.set('w', '2560');
       url.searchParams.set('q', '95');
