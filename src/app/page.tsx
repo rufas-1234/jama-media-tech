@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { imageSource } from '@/lib/content';
+import { ArrowRight } from 'lucide-react';
 import { getNewsCards } from '@/lib/news-content';
 import { getSiteContent } from '@/lib/site-content';
 import { EditableSections, TeamMembersSection } from '@/components/content/EditablePage';
 import { HomeHeroSlider } from '@/components/content/HomeHeroSlider';
+import { HomeServicesSection } from '@/components/content/HomeServicesSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,23 +14,14 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeHeroSlider slides={homepage.heroSlides} location={company.location} serviceLabels={services.map((service) => service.short)} />
+      <HomeHeroSlider slides={homepage.heroSlides} location={company.location} services={services.map(({ slug, short }) => ({ slug, short }))} />
 
-      <section className="bg-[#f4f6f3] py-16 text-[#172019] lg:py-24">
-        <div className="container">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-5">
-            <div className="max-w-3xl"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#28583e]">{pages.services.eyebrow}</p><h2 className="text-3xl font-semibold tracking-[-0.04em] md:text-4xl">{pages.services.title}</h2><p className="mt-4 text-base leading-7 text-[#56615a]">{pages.services.introduction}</p></div>
-            <Link href="/services" className="inline-flex items-center gap-2 font-semibold text-[#28583e]">All services <ArrowUpRight className="h-4 w-4" /></Link>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {services.map((service) => <Link key={service.slug} href={`/services/${service.slug}`} className="group relative min-h-72 overflow-hidden rounded-[1.75rem] bg-[#17231d]">
-              <img src={imageSource(service.image, 1000)} alt={service.alt} className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#101812]/95 via-[#101812]/35 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b3e3ed]">{service.number} · {service.short}</p><h3 className="mt-2 text-2xl font-semibold">{service.title}</h3><p className="mt-2 max-w-xl text-sm leading-6 text-white/75">{service.description}</p></div>
-            </Link>)}
-          </div>
-        </div>
-      </section>
+      <HomeServicesSection
+        services={services}
+        eyebrow={pages.services.eyebrow}
+        title={pages.services.title}
+        introduction={pages.services.introduction}
+      />
 
       <EditableSections sections={homepage.sections} />
 
